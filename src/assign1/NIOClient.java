@@ -19,7 +19,9 @@ import inputport.nio.manager.AnNIOManager;
 import inputport.nio.manager.NIOManager;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AConnectCommandFactory;
+import inputport.nio.manager.factories.classes.AReadCommandFactory;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
+import inputport.nio.manager.factories.selectors.ReadCommandFactorySelector;
 /**
  * Performs client tasks together with the helper listener (observer) class - AMeaningOfLifeClientSender.
  * The entry point is launchClient.
@@ -45,6 +47,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	}
 	protected void setFactories() {		
 		ConnectCommandFactorySelector.setFactory(new AConnectCommandFactory());
+		ReadCommandFactorySelector.setFactory(new AReadCommandFactory());
 	}
 	public void initialize(String aServerHost, int aServerPort) {
 		setFactories();

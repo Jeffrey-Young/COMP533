@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.net.ServerSocketFactory;
 
@@ -27,18 +28,27 @@ import inputport.nio.manager.listeners.SocketChannelAcceptListener;
 import util.annotations.Tags;
 import util.tags.DistributedTags;
 @Tags({DistributedTags.SERVER})
-public class NIOServer implements SocketChannelAcceptListener, Runnable {
+public class NIOServer implements SocketChannelAcceptListener {
+	public static final String READ_THREAD_NAME = "Read Thread";
 	ServerReceiver serverReceiver;
 	ServerSocketChannel serverSocketChannel;
+	private ArrayBlockingQueue<ByteBuffer> readQueue;
+	
 	public NIOServer() {
-
+		readQueue = new ArrayBlockingQueue<ByteBuffer>(4096);
+		
+		//start read processor
+		ServerReader reader = new ServerReader(readQueue);
+		Thread readThread = new Thread(reader);
+		readThread.setName(READ_THREAD_NAME);
+		readThread.start();
 	}
 
 	protected void createCommunicationObjects() {
 		createReceiver();
 	}
 	protected void createReceiver() {
-		serverReceiver = new ServerReceiver();
+		serverReceiver = new ServerReceiver(readQueue);
 	}
 
 	
@@ -99,12 +109,5 @@ public class NIOServer implements SocketChannelAcceptListener, Runnable {
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
 		NIOServer aServer = new NIOServer();
 		aServer.initialize(ServerArgsProcessor.getServerPort(args));
-
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
 	}
 }
