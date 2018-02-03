@@ -1,0 +1,35 @@
+package assign1;
+
+import inputport.nio.manager.NIOManagerFactory;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+/**
+ * Listens to model changes and sends them to the connected server through the
+ * NIO manager.
+ * @author Dewan
+ *
+ */
+public class ClientSender implements PropertyChangeListener{
+//	ObservableNIOManager nioManager;
+	SocketChannel socketChannel;
+	String clientName;
+	public ClientSender(SocketChannel aSocketChannel, String aClientName) {
+//		nioManager = anNIOManager;
+		socketChannel = aSocketChannel;	
+		clientName = aClientName;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent anEvent) {
+		//TODO change to send messages to server
+		if (!anEvent.getPropertyName().equals("InputString")) return;
+		String newCommand = (String) anEvent.getNewValue();
+		System.out.println("Client has command:" + newCommand);		
+		ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((newCommand.getBytes()));
+		NIOManagerFactory.getSingleton().write(socketChannel, aMeaningByteBuffer);	
+	}
+
+}
