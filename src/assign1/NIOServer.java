@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.net.ServerSocketFactory;
@@ -33,12 +35,14 @@ public class NIOServer implements SocketChannelAcceptListener {
 	ServerReceiver serverReceiver;
 	ServerSocketChannel serverSocketChannel;
 	private ArrayBlockingQueue<ByteBuffer> readQueue;
+	private List<SocketChannel> clients;
 	
 	public NIOServer() {
 		readQueue = new ArrayBlockingQueue<ByteBuffer>(4096);
+		clients = new ArrayList<SocketChannel>();
 		
 		//start read processor
-		ServerReader reader = new ServerReader(readQueue);
+		ServerReader reader = new ServerReader(readQueue, clients);
 		Thread readThread = new Thread(reader);
 		readThread.setName(READ_THREAD_NAME);
 		readThread.start();
@@ -96,6 +100,7 @@ public class NIOServer implements SocketChannelAcceptListener {
 	@Override
 	public void socketChannelAccepted(ServerSocketChannel aServerSocketChannel,
 			SocketChannel aSocketChannel) {
+		clients.add(aSocketChannel);
 		addListeners(aSocketChannel);
 	}
 //	@Override

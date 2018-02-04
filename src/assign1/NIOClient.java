@@ -2,10 +2,15 @@ package assign1;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ArrayBlockingQueue;
 
+import assignments.util.inputParameters.ASimulationParametersController;
+import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerPort;
+import example.assignments.util.inputParameters.AnExampleSimulationParametersListener;
 import examples.nio.manager.mvc.AMeaningOfLifeController;
 import examples.nio.manager.mvc.AMeaningOfLifeModel;
 import examples.nio.manager.mvc.AMeaningOfLifeView;
@@ -20,6 +25,8 @@ import inputport.nio.manager.NIOManager;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AConnectCommandFactory;
 import inputport.nio.manager.factories.classes.AReadCommandFactory;
+import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
+import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
 import inputport.nio.manager.factories.selectors.ReadCommandFactorySelector;
 /**
@@ -33,21 +40,35 @@ import main.BeauAndersonFinalProject;
 import stringProcessors.HalloweenCommandProcessor;
 
 import util.annotations.Tags;
+import util.interactiveMethodInvocation.ConsensusAlgorithm;
+import util.interactiveMethodInvocation.IPCMechanism;
+import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 @Tags({DistributedTags.CLIENT})
-public class NIOClient implements SocketChannelConnectListener {
+public class NIOClient implements SocketChannelConnectListener, SimulationParametersListener {
 	String clientName;
 	HalloweenCommandProcessor commandProcessor;
 	ClientSender clientSender;
 	SocketChannel socketChannel;
-
+	ClientReceiver clientReceiver;
+	private ArrayBlockingQueue<ByteBuffer> readQueue;
+	
+	private boolean atomic;
+	private boolean localProcessing;
 	
 	public NIOClient(String aClientName) {
 		clientName = aClientName;
+		readQueue = new ArrayBlockingQueue<ByteBuffer>(4096);
+		clientReceiver = new ClientReceiver(readQueue);
+		
+		// Dynamic Invocation Params
+		atomic = true;
+		localProcessing = false;
+		
 	}
 	protected void setFactories() {		
-		ConnectCommandFactorySelector.setFactory(new AConnectCommandFactory());
-		ReadCommandFactorySelector.setFactory(new AReadCommandFactory());
+		ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
+		//ReadCommandFactorySelector.setFactory(new AReadCommandFactory());
 	}
 	public void initialize(String aServerHost, int aServerPort) {
 		setFactories();
@@ -60,6 +81,11 @@ public class NIOClient implements SocketChannelConnectListener {
 
 	public void createUI() {
 		commandProcessor = createSimulation(Simulation1.SIMULATION1_PREFIX);
+		//start read processor
+		ClientReader reader = new ClientReader(readQueue, commandProcessor);
+		Thread readThread = new Thread(reader);
+		readThread.setName(NIOServer.READ_THREAD_NAME);
+		readThread.start();
 	}
 	
 	public static HalloweenCommandProcessor createSimulation(String aPrefix) {
@@ -103,6 +129,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	@Override
 	public void connected(SocketChannel aSocketChannel) {
 		System.out.println("Ready to send messages to server");
+		NIOManagerFactory.getSingleton().addReadListener(socketChannel, clientReceiver);
 	}
 	protected void createCommunicationObjects() {
 		createSender();
@@ -110,7 +137,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	
 	protected void createSender() {
 		clientSender = new ClientSender(socketChannel,
-				clientName);
+				clientName, this);
 	}
 	protected void addListeners() {
 		addModelListener();
@@ -128,7 +155,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	 * Connect the client with the specified name to the specified server.
 	 */
 	public static void launchClient(String aServerHost, int aServerPort,
-			String aClientName) {
+			String aClientName, SimulationParametersController aSimulationParametersController) {
 		/*
 		 * Put these two in your clients also
 		 */
@@ -137,15 +164,85 @@ public class NIOClient implements SocketChannelConnectListener {
 		NIOTraceUtility.setTracing();
 		NIOClient aClient = new NIOClient(
 				aClientName);
+		/*
+		 * Register with this instance our listener object for processing the user
+		 * commands
+		 */
+		aSimulationParametersController.addSimulationParameterListener(aClient);
 		aClient.initialize(aServerHost, aServerPort);		
 	}
 
 
 
 	public static void main(String[] args) {	
+		/*
+		 * Instantiate the class that will process user commands.
+		 */
+		SimulationParametersController aSimulationParametersController = 
+				new ASimulationParametersController();
+		
 		launchClient(ClientArgsProcessor.getServerHost(args),
 				ClientArgsProcessor.getServerPort(args),
-				ClientArgsProcessor.getClientName(args));
+				ClientArgsProcessor.getClientName(args), aSimulationParametersController);
+		
+		aSimulationParametersController.processCommands(); // start the console loop
+	}
+	
+	public boolean isAtomic() {
+		return atomic;
+	}
+	
+	public boolean localProcessing() {
+		return localProcessing;
+	}
+	
+	@Override
+	public void atomicBroadcast(boolean newValue) {
+		System.out.println("atomicBroadcast " + newValue);
+		atomic = newValue;
+	}
 
+	@Override
+	public void ipcMechanism(IPCMechanism newValue) {
+		System.out.println("ipcMechanism " + newValue);	
+	}
+
+	@Override
+	public void experimentInput() {
+		//TODO: Implement
+		System.out.println("experimentInput");			
+	}
+	@Override
+	public void localProcessingOnly(boolean newValue) {
+		System.out.println("localProcessingOnly " + newValue);
+		localProcessing = newValue;
+	}
+
+
+	@Override
+	public void broadcastBroadcastMode(boolean newValue) {
+		System.out.println("broadcastBroadcastMode " + newValue);		
+	}
+
+	@Override
+	public void waitForBroadcastConsensus(boolean newValue) {
+		System.out.println("waitForBroadcastConsensus " + newValue);
+
+		
+	}
+
+	@Override
+	public void broadcastIPCMechanism(boolean newValue) {
+		System.out.println("broadcastIPCMechanism " + newValue);		
+	}
+
+	@Override
+	public void waitForIPCMechanismConsensus(boolean newValue) {
+		System.out.println("waitForIPCMechanismConsensus " + newValue);		
+	}
+
+	@Override
+	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
+		System.out.println("consensusAlgorithm " + newValue);		
 	}
 }
