@@ -37,6 +37,8 @@ public class ClientSender implements PropertyChangeListener {
 		if (!client.localProcessing()) {
 			ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((newCommand.getBytes()));
 			NIOManagerFactory.getSingleton().write(socketChannel, aMeaningByteBuffer);
+		} else {
+			client.commandProcessor.processCommand(newCommand);
 		}
 		;
 	}
