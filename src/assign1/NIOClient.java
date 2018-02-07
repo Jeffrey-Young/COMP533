@@ -19,6 +19,8 @@ import examples.nio.manager.mvc.MeaningOfLifeModel;
 import examples.nio.manager.mvc.MeaningOfLifeView;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
+import util.trace.port.PerformanceExperimentEnded;
+import util.trace.port.PerformanceExperimentStarted;
 import util.trace.port.nio.NIOTraceUtility;
 import inputport.nio.manager.AnNIOManager;
 import inputport.nio.manager.NIOManager;
@@ -62,7 +64,7 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		clientReceiver = new ClientReceiver(readQueue);
 		
 		// Dynamic Invocation Params
-		atomic = true;
+		atomic = false;
 		localProcessing = false;
 		
 	}
@@ -209,7 +211,13 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 
 	@Override
 	public void experimentInput() {
-		//TODO: Implement
+		long start = System.currentTimeMillis();
+		PerformanceExperimentStarted.newCase(this, start, 1000);
+		for (int i = 0; i < 1000; i++) {
+			commandProcessor.setInputString("move 1 1");
+		}
+		long end = System.currentTimeMillis();
+		PerformanceExperimentEnded pfe = PerformanceExperimentEnded.newCase(this, start, end, end - start, 1000);
 		System.out.println("experimentInput");			
 	}
 	@Override
@@ -244,5 +252,15 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 	@Override
 	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
 		System.out.println("consensusAlgorithm " + newValue);		
+	}
+	@Override
+	public void quit(int aCode) {
+		System.exit(aCode);
+		
+	}
+	@Override
+	public void simulationCommand(String aCommand) {
+		commandProcessor.setInputString(aCommand);
+		
 	}
 }

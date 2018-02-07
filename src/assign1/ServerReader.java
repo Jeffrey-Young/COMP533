@@ -5,23 +5,26 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import inputport.nio.manager.NIOManagerFactory;
 
 public class ServerReader implements Runnable {
 
-	private ArrayBlockingQueue<ByteBuffer> readQueue;
+	private ArrayBlockingQueue<Map<SocketChannel, ByteBuffer>> readQueue;
 	private List<SocketChannel> clients;
+	private NIOServer server;
 
-	public ServerReader(ArrayBlockingQueue<ByteBuffer> readQueue, List<SocketChannel> clients) {
+	public ServerReader(NIOServer server, ArrayBlockingQueue<Map<SocketChannel, ByteBuffer>> readQueue, List<SocketChannel> clients) {
+		this.server = server;
 		this.readQueue = readQueue;
 		this.clients = clients;
 	}
 
 	@Override
 	public void run() {
-		ByteBuffer message = null;
+		Map<SocketChannel, ByteBuffer> message = null;
 		while (true) {
 			try {
 				message = readQueue.take();
@@ -32,7 +35,10 @@ public class ServerReader implements Runnable {
 			// send out to the clients
 			System.out.println("Server is now sending to clients");
 			for (SocketChannel client : clients) {
-				NIOManagerFactory.getSingleton().write(client, message);
+				if (!server.isAtomic() && client.equals(message.keySet().toArray()[0])) {
+					continue;
+				}
+				NIOManagerFactory.getSingleton().write(client, message.get(message.keySet().toArray()[0]));
 
 			}
 		}
