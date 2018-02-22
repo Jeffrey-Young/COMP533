@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import assignments.util.MiscAssignmentUtils;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
@@ -164,6 +165,10 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
+		/*
+		 * Instantiate the class that will process user commands.
+		 */
+
 		NIOClient aClient = new NIOClient(
 				aClientName);
 		/*
@@ -171,23 +176,21 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		 * commands
 		 */
 		aSimulationParametersController.addSimulationParameterListener(aClient);
-		aClient.initialize(aServerHost, aServerPort);		
+		aClient.initialize(aServerHost, aServerPort);	
+		aSimulationParametersController.processCommands(); // start the console loop
 	}
 
 
 
-	public static void main(String[] args) {	
-		/*
-		 * Instantiate the class that will process user commands.
-		 */
+	public static void main(String[] args) {
+		args = ClientArgsProcessor.removeEmpty(args);
+		// MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
 		SimulationParametersController aSimulationParametersController = 
 				new ASimulationParametersController();
-		
 		launchClient(ClientArgsProcessor.getServerHost(args),
 				ClientArgsProcessor.getServerPort(args),
 				ClientArgsProcessor.getClientName(args), aSimulationParametersController);
 		
-		aSimulationParametersController.processCommands(); // start the console loop
 	}
 	
 	public boolean isAtomic() {

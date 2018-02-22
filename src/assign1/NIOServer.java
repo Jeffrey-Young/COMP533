@@ -15,6 +15,7 @@ import javax.net.ServerSocketFactory;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.SimulationParametersListener;
+import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerArgsProcessor;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
@@ -119,6 +120,7 @@ public class NIOServer implements SocketChannelAcceptListener, SimulationParamet
 	// }
 
 	public static void main(String[] args) {
+		args = ServerArgsProcessor.removeEmpty(args);
 		FactoryTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt

@@ -33,7 +33,7 @@ public class ServerReader implements Runnable {
 				e.printStackTrace();
 			}
 			// send out to the clients
-			System.out.println("Server is now sending to clients");
+			//System.out.println("Server is now sending to clients");
 			for (SocketChannel client : clients) {
 				if (!server.isAtomic() && client.equals(message.keySet().toArray()[0])) {
 					continue;

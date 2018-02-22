@@ -30,7 +30,7 @@ public class ServerReceiver implements SocketChannelReadListener {
 		} catch (IllegalStateException e) {
 			System.err.print("Error, Read queue is full!");
 		}
-		System.out.println("Server receives: " + command);
+		// System.out.println("Server receives: " + command);
 	}
 
 }
