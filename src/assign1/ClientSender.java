@@ -33,7 +33,7 @@ public class ClientSender implements PropertyChangeListener {
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
 		String newCommand = (String) anEvent.getNewValue();
-		System.out.println("Client has command:" + newCommand);
+		// System.out.println("Client has command:" + newCommand);
 		if (!client.localProcessing()) {
 			if (!client.isAtomic()) {
 				client.commandProcessor.processCommand(newCommand);

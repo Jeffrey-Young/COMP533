@@ -21,13 +21,13 @@ public class ClientReceiver implements SocketChannelReadListener{
 	public void socketChannelRead(SocketChannel aSocketChannel, ByteBuffer aMessage, int aLength) {
 		String command = new String(aMessage.array(), aMessage.position(),
 				aLength);
-		System.out.println("CLIENT SOCKET CHANNEL READ");
+		//System.out.println("CLIENT SOCKET CHANNEL READ");
 		try {
 			readQueue.add(MiscAssignmentUtils.deepDuplicate(aMessage));	
 		} catch (IllegalStateException e) {
 			System.err.print("Error, Read queue is full!");
 		}
-		System.out.println("Client receives: " + command);		
+		//System.out.println("Client receives: " + command);		
 	}
 
 }
