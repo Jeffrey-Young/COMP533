@@ -184,7 +184,7 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 
 	public static void main(String[] args) {
 		args = ClientArgsProcessor.removeEmpty(args);
-		// MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
+		MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
 		SimulationParametersController aSimulationParametersController = 
 				new ASimulationParametersController();
 		launchClient(ClientArgsProcessor.getServerHost(args),
@@ -229,22 +229,11 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		localProcessing = newValue;
 	}
 
-
-	@Override
-	public void broadcastBroadcastMode(boolean newValue) {
-		System.out.println("broadcastBroadcastMode " + newValue);		
-	}
-
 	@Override
 	public void waitForBroadcastConsensus(boolean newValue) {
 		System.out.println("waitForBroadcastConsensus " + newValue);
 
 		
-	}
-
-	@Override
-	public void broadcastIPCMechanism(boolean newValue) {
-		System.out.println("broadcastIPCMechanism " + newValue);		
 	}
 
 	@Override

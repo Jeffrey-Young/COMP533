@@ -165,19 +165,7 @@ public class NIOServer implements SocketChannelAcceptListener, SimulationParamet
 	}
 
 	@Override
-	public void broadcastBroadcastMode(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void waitForBroadcastConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void broadcastIPCMechanism(boolean newValue) {
 		// TODO Auto-generated method stub
 
 	}
