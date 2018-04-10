@@ -7,6 +7,8 @@ import java.beans.PropertyChangeListener;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+import global.SimulationParameters;
+
 /**
  * Listens to model changes and sends them to the connected server through the
  * NIO manager.
@@ -34,8 +36,8 @@ public class ClientSender implements PropertyChangeListener {
 			return;
 		String newCommand = (String) anEvent.getNewValue();
 		// System.out.println("Client has command:" + newCommand);
-		if (!client.localProcessing()) {
-			if (!client.isAtomic()) {
+		if (!SimulationParameters.getSingleton().isLocalProcessingOnly()) {
+			if (!SimulationParameters.getSingleton().isAtomicBroadcast()) {
 				client.commandProcessor.processCommand(newCommand);
 			} 
 			ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((newCommand.getBytes()));

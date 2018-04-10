@@ -1,6 +1,7 @@
 package assign2;
 
 import java.beans.PropertyChangeEvent;
+import util.tags.DistributedTags;
 import java.beans.PropertyChangeListener;
 import java.nio.ByteBuffer;
 import java.rmi.Remote;
@@ -12,17 +13,19 @@ import java.rmi.server.UnicastRemoteObject;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import examples.mvc.rmi.duplex.DistributedRMICounter;
+import global.SimulationParameters;
 import inputport.nio.manager.NIOManagerFactory;
+import util.annotations.Tags;
 import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.IPCMechanism;
+import util.misc.ThreadSupport;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 
-public class RMIClient implements SimulationParametersListener, PropertyChangeListener {
+@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
+public class RMIClient implements PropertyChangeListener {
 
-	private boolean atomic;
-	private boolean localProcessing;
 	private RemoteCommandProcessorInterface commandProcessorProxy;
 	private String name;
 	
@@ -33,8 +36,8 @@ public class RMIClient implements SimulationParametersListener, PropertyChangeLi
 		this.serverProxy = serverProxy;
 		commandProcessorProxy = new RemoteCommandProcessor(this);
 		// Dynamic Invocation Params
-		atomic = false;
-		localProcessing = false;
+		SimulationParameters.getSingleton().setAtomicBroadcast(false);
+		SimulationParameters.getSingleton().localProcessingOnly(false);
 		name = Math.random() + "";
 	}
 
@@ -44,8 +47,8 @@ public class RMIClient implements SimulationParametersListener, PropertyChangeLi
 			return;
 		String newCommand = (String) anEvent.getNewValue();
 		System.out.println("Client has command:" + newCommand);
-		if (!localProcessing) {
-			if (!atomic) {
+		if (!SimulationParameters.getSingleton().isLocalProcessingOnly()) {
+			if (!SimulationParameters.getSingleton().isAtomicBroadcast()) {
 				try {
 					commandProcessorProxy.processRemoteCommand(newCommand);
 				} catch (RemoteException e) {
@@ -55,6 +58,7 @@ public class RMIClient implements SimulationParametersListener, PropertyChangeLi
 			}
 			// send to server
 			try {
+				ThreadSupport.sleep(SimulationParameters.getSingleton().getDelay());
 				serverProxy.executeCommand(this.name, newCommand);
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -97,67 +101,20 @@ public class RMIClient implements SimulationParametersListener, PropertyChangeLi
 		return commandProcessorProxy;
 	}
 	
-	// INTERFACE METHODS
-	@Override
-	public void atomicBroadcast(boolean newValue) {
-		atomic = newValue;
-	}
 
-	@Override
+	//@Override
 	public void experimentInput() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
-	public void localProcessingOnly(boolean newValue) {
-		localProcessing = newValue;
-
-	}
-
-	@Override
-	public void ipcMechanism(IPCMechanism newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void broadcastBroadcastMode(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForBroadcastConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void broadcastIPCMechanism(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForIPCMechanismConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
+	//@Override
 	public void quit(int aCode) {
-		// TODO Auto-generated method stub
+		System.exit(aCode);
 
 	}
 
-	@Override
+	//@Override
 	public void simulationCommand(String aCommand) {
 		// TODO Auto-generated method stub
 

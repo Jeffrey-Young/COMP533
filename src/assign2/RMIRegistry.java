@@ -1,10 +1,13 @@
 package assign2;
 
 import java.rmi.registry.LocateRegistry;
+import util.tags.DistributedTags;
 import java.util.Scanner;
 
 import assignments.util.mainArgs.ServerArgsProcessor;
+import util.annotations.Tags;
 
+@Tags ({DistributedTags.REGISTRY, DistributedTags.RMI})
 public class RMIRegistry {
 	public static void main (String[] args) {
 		try {

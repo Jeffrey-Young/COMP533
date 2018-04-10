@@ -18,6 +18,7 @@ import examples.nio.manager.mvc.AMeaningOfLifeView;
 import examples.nio.manager.mvc.MeaningOfLifeController;
 import examples.nio.manager.mvc.MeaningOfLifeModel;
 import examples.nio.manager.mvc.MeaningOfLifeView;
+import global.SimulationParameters;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.PerformanceExperimentEnded;
@@ -48,7 +49,7 @@ import util.interactiveMethodInvocation.IPCMechanism;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 @Tags({DistributedTags.CLIENT})
-public class NIOClient implements SocketChannelConnectListener, SimulationParametersListener {
+public class NIOClient implements SocketChannelConnectListener {
 	String clientName;
 	HalloweenCommandProcessor commandProcessor;
 	ClientSender clientSender;
@@ -56,17 +57,12 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 	ClientReceiver clientReceiver;
 	private ArrayBlockingQueue<ByteBuffer> readQueue;
 	
-	private boolean atomic;
-	private boolean localProcessing;
+
 	
 	public NIOClient(String aClientName) {
 		clientName = aClientName;
 		readQueue = new ArrayBlockingQueue<ByteBuffer>(4096);
 		clientReceiver = new ClientReceiver(readQueue);
-		
-		// Dynamic Invocation Params
-		atomic = false;
-		localProcessing = false;
 		
 	}
 	protected void setFactories() {		
@@ -175,7 +171,7 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		 * Register with this instance our listener object for processing the user
 		 * commands
 		 */
-		aSimulationParametersController.addSimulationParameterListener(aClient);
+		aSimulationParametersController.addSimulationParameterListener(SimulationParameters.getSingleton());
 		aClient.initialize(aServerHost, aServerPort);	
 		aSimulationParametersController.processCommands(); // start the console loop
 	}
@@ -193,26 +189,10 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		
 	}
 	
-	public boolean isAtomic() {
-		return atomic;
-	}
-	
-	public boolean localProcessing() {
-		return localProcessing;
-	}
-	
-	@Override
-	public void atomicBroadcast(boolean newValue) {
-		System.out.println("atomicBroadcast " + newValue);
-		atomic = newValue;
-	}
 
-	@Override
-	public void ipcMechanism(IPCMechanism newValue) {
-		System.out.println("ipcMechanism " + newValue);	
-	}
-
-	@Override
+	
+	// TODO: WHAT TO DO ABOUT THESE THEY ARE IMPL SPECIFIC
+	// @Override
 	public void experimentInput() {
 		long start = System.currentTimeMillis();
 		PerformanceExperimentStarted.newCase(this, start, 1000);
@@ -223,34 +203,13 @@ public class NIOClient implements SocketChannelConnectListener, SimulationParame
 		PerformanceExperimentEnded pfe = PerformanceExperimentEnded.newCase(this, start, end, end - start, 1000);
 		System.out.println("experimentInput");			
 	}
-	@Override
-	public void localProcessingOnly(boolean newValue) {
-		System.out.println("localProcessingOnly " + newValue);
-		localProcessing = newValue;
-	}
 
-	@Override
-	public void waitForBroadcastConsensus(boolean newValue) {
-		System.out.println("waitForBroadcastConsensus " + newValue);
-
-		
-	}
-
-	@Override
-	public void waitForIPCMechanismConsensus(boolean newValue) {
-		System.out.println("waitForIPCMechanismConsensus " + newValue);		
-	}
-
-	@Override
-	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
-		System.out.println("consensusAlgorithm " + newValue);		
-	}
-	@Override
+	// @Override
 	public void quit(int aCode) {
 		System.exit(aCode);
 		
 	}
-	@Override
+	// @Override
 	public void simulationCommand(String aCommand) {
 		commandProcessor.setInputString(aCommand);
 		

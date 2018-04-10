@@ -9,9 +9,12 @@ import java.util.Map;
 
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ServerArgsProcessor;
+import global.SimulationParameters;
 import inputport.nio.manager.NIOManagerFactory;
+import util.annotations.Tags;
 import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.IPCMechanism;
+import util.misc.ThreadSupport;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
@@ -19,12 +22,12 @@ import util.trace.port.nio.NIOTraceUtility;
 import java.nio.channels.SocketChannel;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
+import util.tags.DistributedTags;
 
-public class RMIServer implements SimulationParametersListener, RMIServerInterface {
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
+public class RMIServer implements  RMIServerInterface {
 	public static final String REGISTRY_NAME = "RMI_SERVER";
 
-	private boolean atomic;
-	private boolean localProcessing;
 	private Map<String, RemoteCommandProcessorInterface> clients;
 	private Registry rmiRegistry;
 
@@ -32,8 +35,8 @@ public class RMIServer implements SimulationParametersListener, RMIServerInterfa
 		this.rmiRegistry = rmiRegistry;
 		clients = new HashMap<String, RemoteCommandProcessorInterface>();
 		// Dynamic Invocation Params
-		atomic = false;
-		localProcessing = false;
+		SimulationParameters.getSingleton().setAtomicBroadcast(false);
+		SimulationParameters.getSingleton().localProcessingOnly(false);
 	}
 
 	public static void main(String[] args) {
@@ -62,12 +65,13 @@ public class RMIServer implements SimulationParametersListener, RMIServerInterfa
 	public void executeCommand(String invokerName, String command) throws RemoteException {
 		System.out.println("Command: " + command + " by " + invokerName + " successfully sent to server");
 		for (String proxyName : clients.keySet()) {
-			if (!atomic && invokerName.equals(proxyName)) {
+			if (!SimulationParameters.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {
 				continue;
 			}
 			// Invoke command on all remote command processors
 			System.out.println("Attempting to invoke " + command + " on " + proxyName);
 			try {
+				ThreadSupport.sleep(SimulationParameters.getSingleton().getDelay());
 				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
 				clientProxy.processRemoteCommand(command);
 			} catch (Exception e) {
@@ -77,71 +81,7 @@ public class RMIServer implements SimulationParametersListener, RMIServerInterfa
 		}
 	}
 
-	// Simulation Interface Methods
-
-	@Override
-	public void atomicBroadcast(boolean newValue) {
-		atomic = newValue;
-
-	}
-
-	@Override
-	public void experimentInput() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void localProcessingOnly(boolean newValue) {
-		localProcessing = newValue;
-
-	}
-
-	@Override
-	public void ipcMechanism(IPCMechanism newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void broadcastBroadcastMode(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForBroadcastConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void broadcastIPCMechanism(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForIPCMechanismConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void quit(int aCode) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void simulationCommand(String aCommand) {
-		// TODO Auto-generated method stub
-
+		System.exit(aCode);
 	}
 }

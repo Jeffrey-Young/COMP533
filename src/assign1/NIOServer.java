@@ -17,6 +17,7 @@ import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerArgsProcessor;
+import global.SimulationParameters;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.factories.SelectorFactorySet;
@@ -38,7 +39,7 @@ import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 
 @Tags({ DistributedTags.SERVER })
-public class NIOServer implements SocketChannelAcceptListener, SimulationParametersListener {
+public class NIOServer implements SocketChannelAcceptListener {
 	public static final String READ_THREAD_NAME = "Read Thread";
 	ServerReceiver serverReceiver;
 	ServerSocketChannel serverSocketChannel;
@@ -126,71 +127,16 @@ public class NIOServer implements SocketChannelAcceptListener, SimulationParamet
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
 		NIOServer aServer = new NIOServer();
 		SimulationParametersController aSimulationParametersController = new ASimulationParametersController();
-		aSimulationParametersController.addSimulationParameterListener(aServer);
+		aSimulationParametersController.addSimulationParameterListener(SimulationParameters.getSingleton());
 		aServer.initialize(ServerArgsProcessor.getServerPort(args));
 		aSimulationParametersController.processCommands();
 	}
 
-	// Simulation Parameter Listener
-
-	public boolean isAtomic() {
-		return atomic;
-	}
 	
-	public boolean localProcessing() {
-		return localProcessing;
-	}
-	
-	
-	@Override
-	public void atomicBroadcast(boolean newValue) {
-		atomic = newValue;
-	}
 
-	@Override
-	public void experimentInput() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void localProcessingOnly(boolean newValue) {
-		localProcessing = newValue;
-	}
-
-	@Override
-	public void ipcMechanism(IPCMechanism newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForBroadcastConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void waitForIPCMechanismConsensus(boolean newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void consensusAlgorithm(ConsensusAlgorithm newValue) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
+	// @Override
 	public void quit(int aCode) {
 		System.exit(aCode);
-
-	}
-
-	@Override
-	public void simulationCommand(String aCommand) {
-		// TODO Auto-generated method stub
 
 	}
 }
