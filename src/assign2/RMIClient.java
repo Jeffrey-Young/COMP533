@@ -21,9 +21,11 @@ import util.interactiveMethodInvocation.IPCMechanism;
 import util.misc.ThreadSupport;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
+import util.trace.misc.ThreadDelayed;
+import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMITraceUtility;
 
-@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
 public class RMIClient implements PropertyChangeListener {
 
 	private RemoteCommandProcessorInterface commandProcessorProxy;
@@ -43,6 +45,9 @@ public class RMIClient implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent anEvent) {
+		if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.RMI)) {
+			return;
+		}
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
 		String newCommand = (String) anEvent.getNewValue();
@@ -77,6 +82,10 @@ public class RMIClient implements PropertyChangeListener {
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+
 		
 		try {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args));

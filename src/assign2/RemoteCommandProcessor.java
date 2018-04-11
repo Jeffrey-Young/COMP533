@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 
 import assign1.Simulation;
 import assign1.Simulation1;
+import global.SimulationParameters;
 import main.BeauAndersonFinalProject;
 import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
@@ -17,14 +18,7 @@ public class RemoteCommandProcessor extends AHalloweenCommandProcessor implement
 	private HalloweenCommandProcessor commandProcessor;
 	public RemoteCommandProcessor(RMIClient client) {
 		// super();
-		commandProcessor = BeauAndersonFinalProject.createSimulation(
-				Simulation1.SIMULATION1_PREFIX,
-				Simulation1.SIMULATION1_X_OFFSET, 
-				Simulation.SIMULATION_Y_OFFSET, 
-				Simulation.SIMULATION_WIDTH, 
-				Simulation.SIMULATION_HEIGHT, 
-				Simulation1.SIMULATION1_X_OFFSET, 
-				Simulation.SIMULATION_Y_OFFSET);
+		commandProcessor = SimulationParameters.getCommandProcessor();
 		commandProcessor.addPropertyChangeListener(client);
 	}
 	

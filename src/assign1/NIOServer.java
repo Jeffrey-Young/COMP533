@@ -21,8 +21,11 @@ import global.SimulationParameters;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.factories.SelectorFactorySet;
+import util.trace.misc.ThreadDelayed;
+import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.nio.SocketChannelBound;
+import util.trace.port.rpc.rmi.RMITraceUtility;
 import inputport.nio.manager.AnNIOManager;
 import inputport.nio.manager.NIOManager;
 import inputport.nio.manager.NIOManagerFactory;
@@ -125,6 +128,10 @@ public class NIOServer implements SocketChannelAcceptListener {
 		FactoryTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+
 		NIOServer aServer = new NIOServer();
 		SimulationParametersController aSimulationParametersController = new ASimulationParametersController();
 		aSimulationParametersController.addSimulationParameterListener(SimulationParameters.getSingleton());

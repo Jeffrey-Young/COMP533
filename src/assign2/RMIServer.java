@@ -17,7 +17,10 @@ import util.interactiveMethodInvocation.IPCMechanism;
 import util.misc.ThreadSupport;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
+import util.trace.misc.ThreadDelayed;
+import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMITraceUtility;
 
 import java.nio.channels.SocketChannel;
 import java.rmi.NotBoundException;
@@ -43,6 +46,10 @@ public class RMIServer implements  RMIServerInterface {
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+
 		
 		try {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryHost(args));
@@ -63,6 +70,9 @@ public class RMIServer implements  RMIServerInterface {
 
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
+		if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.RMI)) {
+			return;
+		}
 		System.out.println("Command: " + command + " by " + invokerName + " successfully sent to server");
 		for (String proxyName : clients.keySet()) {
 			if (!SimulationParameters.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {

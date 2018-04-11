@@ -10,6 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import global.SimulationParameters;
 import inputport.nio.manager.NIOManagerFactory;
+import util.interactiveMethodInvocation.IPCMechanism;
 
 public class ServerReader implements Runnable {
 
@@ -27,6 +28,9 @@ public class ServerReader implements Runnable {
 	public void run() {
 		Map<SocketChannel, ByteBuffer> message = null;
 		while (true) {
+			if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.NIO)) {
+				continue;
+			}
 			try {
 				message = readQueue.take();
 			} catch (InterruptedException e) {

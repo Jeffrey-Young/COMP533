@@ -21,9 +21,12 @@ import examples.nio.manager.mvc.MeaningOfLifeView;
 import global.SimulationParameters;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
+import util.trace.misc.ThreadDelayed;
 import util.trace.port.PerformanceExperimentEnded;
 import util.trace.port.PerformanceExperimentStarted;
+import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMITraceUtility;
 import inputport.nio.manager.AnNIOManager;
 import inputport.nio.manager.NIOManager;
 import inputport.nio.manager.NIOManagerFactory;
@@ -79,7 +82,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	}
 
 	public void createUI() {
-		commandProcessor = createSimulation(Simulation1.SIMULATION1_PREFIX);
+		commandProcessor = SimulationParameters.getCommandProcessor();
 		//start read processor
 		ClientReader reader = new ClientReader(readQueue, commandProcessor);
 		Thread readThread = new Thread(reader);
@@ -88,14 +91,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	}
 	
 	public static HalloweenCommandProcessor createSimulation(String aPrefix) {
-		return 	BeauAndersonFinalProject.createSimulation(
-					aPrefix,
-					Simulation1.SIMULATION1_X_OFFSET, 
-					Simulation.SIMULATION_Y_OFFSET, 
-					Simulation.SIMULATION_WIDTH, 
-					Simulation.SIMULATION_HEIGHT, 
-					Simulation1.SIMULATION1_X_OFFSET, 
-					Simulation.SIMULATION_Y_OFFSET);
+		return 	SimulationParameters.getCommandProcessor();
 	}
 
 	public void connectToServer(String aServerHost, int aServerPort) {
@@ -161,6 +157,10 @@ public class NIOClient implements SocketChannelConnectListener {
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+
 		/*
 		 * Instantiate the class that will process user commands.
 		 */

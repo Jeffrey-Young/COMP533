@@ -1,6 +1,7 @@
 package assign1;
 
 import inputport.nio.manager.NIOManagerFactory;
+import util.interactiveMethodInvocation.IPCMechanism;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,6 +33,9 @@ public class ClientSender implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent anEvent) {
 		// TODO change to send messages to server
+		if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.NIO)) {
+			return;
+		}
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
 		String newCommand = (String) anEvent.getNewValue();
