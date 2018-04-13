@@ -5,7 +5,9 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import assignments.util.MiscAssignmentUtils;
+import global.SimulationParameters;
 import inputport.nio.manager.listeners.SocketChannelReadListener;
+import util.interactiveMethodInvocation.IPCMechanism;
 
 public class ClientReceiver implements SocketChannelReadListener{
 
@@ -19,6 +21,9 @@ public class ClientReceiver implements SocketChannelReadListener{
 
 	@Override
 	public void socketChannelRead(SocketChannel aSocketChannel, ByteBuffer aMessage, int aLength) {
+		if (SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.NIO)) {
+			return;
+		}
 		String command = new String(aMessage.array(), aMessage.position(),
 				aLength);
 		//System.out.println("CLIENT SOCKET CHANNEL READ");

@@ -9,7 +9,9 @@ import assign1.NIOServer;
 import assign2.RMIServer;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ServerArgsProcessor;
+import util.annotations.Tags;
 import util.interactiveMethodInvocation.SimulationParametersController;
+import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
@@ -17,6 +19,7 @@ import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
 public class Server {
 
 	

@@ -27,7 +27,6 @@ import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import util.tags.DistributedTags;
 
-@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
 public class RMIServer implements  RMIServerInterface {
 	public static final String REGISTRY_NAME = "RMI_SERVER";
 
@@ -70,9 +69,6 @@ public class RMIServer implements  RMIServerInterface {
 
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
-		if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.RMI)) {
-			return;
-		}
 		System.out.println("Command: " + command + " by " + invokerName + " successfully sent to server");
 		for (String proxyName : clients.keySet()) {
 			if (!SimulationParameters.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {
