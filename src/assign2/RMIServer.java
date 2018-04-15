@@ -9,7 +9,7 @@ import java.util.Map;
 
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ServerArgsProcessor;
-import global.SimulationParameters;
+import global.Server;
 import inputport.nio.manager.NIOManagerFactory;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.ConsensusAlgorithm;
@@ -37,8 +37,8 @@ public class RMIServer implements  RMIServerInterface {
 		this.rmiRegistry = rmiRegistry;
 		clients = new HashMap<String, RemoteCommandProcessorInterface>();
 		// Dynamic Invocation Params
-		SimulationParameters.getSingleton().setAtomicBroadcast(false);
-		SimulationParameters.getSingleton().localProcessingOnly(false);
+		Server.getSingleton().setAtomicBroadcast(false);
+		Server.getSingleton().localProcessingOnly(false);
 	}
 
 	public static void main(String[] args) {
@@ -71,13 +71,13 @@ public class RMIServer implements  RMIServerInterface {
 	public void executeCommand(String invokerName, String command) throws RemoteException {
 		System.out.println("Command: " + command + " by " + invokerName + " successfully sent to server");
 		for (String proxyName : clients.keySet()) {
-			if (!SimulationParameters.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {
+			if (!Server.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {
 				continue;
 			}
 			// Invoke command on all remote command processors
 			System.out.println("Attempting to invoke " + command + " on " + proxyName);
 			try {
-				ThreadSupport.sleep(SimulationParameters.getSingleton().getDelay());
+				ThreadSupport.sleep(Server.getSingleton().getDelay());
 				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
 				clientProxy.processRemoteCommand(command);
 			} catch (Exception e) {
@@ -89,5 +89,32 @@ public class RMIServer implements  RMIServerInterface {
 
 	public void quit(int aCode) {
 		System.exit(aCode);
+	}
+
+	@Override
+	public void broadcastAtomic(Boolean newValue) throws RemoteException {
+		for (String proxyName : clients.keySet()) {
+			RemoteCommandProcessorInterface clientProxy = null;
+			try {
+				clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
+			} catch (NotBoundException e) {
+				e.printStackTrace();
+			}
+			clientProxy.remoteSetAtomic(newValue); //WHAT IS THE STRING I SHOULD SEND
+		}
+	}
+
+	@Override
+	public void broadcastIPC(IPCMechanism newValue) throws RemoteException {
+		for (String proxyName : clients.keySet()) {
+			RemoteCommandProcessorInterface clientProxy = null;
+			try {
+				clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			clientProxy.remoteSetIPC(newValue); //WHAT IS THE STRING I SHOULD SEND
+		}		
 	}
 }

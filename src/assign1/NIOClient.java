@@ -18,7 +18,7 @@ import examples.nio.manager.mvc.AMeaningOfLifeView;
 import examples.nio.manager.mvc.MeaningOfLifeController;
 import examples.nio.manager.mvc.MeaningOfLifeModel;
 import examples.nio.manager.mvc.MeaningOfLifeView;
-import global.SimulationParameters;
+import global.Client;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
@@ -51,7 +51,7 @@ import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.IPCMechanism;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
-@Tags({DistributedTags.CLIENT})
+// @Tags({DistributedTags.CLIENT})
 public class NIOClient implements SocketChannelConnectListener {
 	String clientName;
 	HalloweenCommandProcessor commandProcessor;
@@ -82,7 +82,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	}
 
 	public void createUI() {
-		commandProcessor = SimulationParameters.getCommandProcessor();
+		commandProcessor = Client.getCommandProcessor();
 		//start read processor
 		ClientReader reader = new ClientReader(readQueue, commandProcessor);
 		Thread readThread = new Thread(reader);
@@ -91,7 +91,7 @@ public class NIOClient implements SocketChannelConnectListener {
 	}
 	
 	public static HalloweenCommandProcessor createSimulation(String aPrefix) {
-		return 	SimulationParameters.getCommandProcessor();
+		return 	Client.getCommandProcessor();
 	}
 
 	public void connectToServer(String aServerHost, int aServerPort) {
@@ -171,7 +171,7 @@ public class NIOClient implements SocketChannelConnectListener {
 		 * Register with this instance our listener object for processing the user
 		 * commands
 		 */
-		aSimulationParametersController.addSimulationParameterListener(SimulationParameters.getSingleton());
+		aSimulationParametersController.addSimulationParameterListener(Client.getSingleton());
 		aClient.initialize(aServerHost, aServerPort);	
 		aSimulationParametersController.processCommands(); // start the console loop
 	}

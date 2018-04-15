@@ -17,7 +17,7 @@ import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerArgsProcessor;
-import global.SimulationParameters;
+import global.Server;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.factories.SelectorFactorySet;
@@ -41,7 +41,7 @@ import util.interactiveMethodInvocation.IPCMechanism;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 
-@Tags({ DistributedTags.SERVER })
+// @Tags({ DistributedTags.SERVER })
 public class NIOServer implements SocketChannelAcceptListener {
 	public static final String READ_THREAD_NAME = "Read Thread";
 	ServerReceiver serverReceiver;
@@ -134,7 +134,7 @@ public class NIOServer implements SocketChannelAcceptListener {
 
 		NIOServer aServer = new NIOServer();
 		SimulationParametersController aSimulationParametersController = new ASimulationParametersController();
-		aSimulationParametersController.addSimulationParameterListener(SimulationParameters.getSingleton());
+		aSimulationParametersController.addSimulationParameterListener(Server.getSingleton());
 		aServer.initialize(ServerArgsProcessor.getServerPort(args));
 		aSimulationParametersController.processCommands();
 	}

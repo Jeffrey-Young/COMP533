@@ -5,10 +5,11 @@ import java.rmi.RemoteException;
 
 import assign1.Simulation;
 import assign1.Simulation1;
-import global.SimulationParameters;
+import global.Client;
 import main.BeauAndersonFinalProject;
 import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
+import util.interactiveMethodInvocation.IPCMechanism;
 
 public class RemoteCommandProcessor extends AHalloweenCommandProcessor implements RemoteCommandProcessorInterface {
 	/**
@@ -18,7 +19,7 @@ public class RemoteCommandProcessor extends AHalloweenCommandProcessor implement
 	private HalloweenCommandProcessor commandProcessor;
 	public RemoteCommandProcessor(RMIClient client) {
 		// super();
-		commandProcessor = SimulationParameters.getCommandProcessor();
+		commandProcessor = Client.getCommandProcessor();
 		commandProcessor.addPropertyChangeListener(client);
 	}
 	
@@ -28,5 +29,17 @@ public class RemoteCommandProcessor extends AHalloweenCommandProcessor implement
 	
 	public void processRemoteCommand(String command) throws RemoteException {
 		commandProcessor.processCommand(command);
+	}
+
+	@Override
+	public void remoteSetAtomic(boolean newValue) throws RemoteException {
+		Client.getSingleton().atomicBroadcast(newValue);
+		
+	}
+
+	@Override
+	public void remoteSetIPC(IPCMechanism newValue) throws RemoteException {
+		Client.getSingleton().setIPCMechanism(newValue);
+		
 	}
 }

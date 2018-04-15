@@ -13,7 +13,7 @@ import java.rmi.server.UnicastRemoteObject;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import examples.mvc.rmi.duplex.DistributedRMICounter;
-import global.SimulationParameters;
+import global.Client;
 import inputport.nio.manager.NIOManagerFactory;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.ConsensusAlgorithm;
@@ -38,22 +38,22 @@ public class RMIClient implements PropertyChangeListener {
 		this.serverProxy = serverProxy;
 		commandProcessorProxy = new RemoteCommandProcessor(this);
 		// Dynamic Invocation Params
-		SimulationParameters.getSingleton().setAtomicBroadcast(false);
-		SimulationParameters.getSingleton().localProcessingOnly(false);
+		Client.getSingleton().setAtomicBroadcast(false);
+		Client.getSingleton().localProcessingOnly(false);
 		name = Math.random() + "";
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent anEvent) {
-		if (!SimulationParameters.getSingleton().getIPCMechanism().equals(IPCMechanism.RMI)) {
+		if (!Client.getSingleton().getIPCMechanism().equals(IPCMechanism.RMI)) {
 			return;
 		}
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
 		String newCommand = (String) anEvent.getNewValue();
 		System.out.println("Client has command:" + newCommand);
-		if (!SimulationParameters.getSingleton().isLocalProcessingOnly()) {
-			if (!SimulationParameters.getSingleton().isAtomicBroadcast()) {
+		if (!Client.getSingleton().isLocalProcessingOnly()) {
+			if (!Client.getSingleton().isAtomicBroadcast()) {
 				try {
 					commandProcessorProxy.processRemoteCommand(newCommand);
 				} catch (RemoteException e) {
@@ -63,7 +63,7 @@ public class RMIClient implements PropertyChangeListener {
 			}
 			// send to server
 			try {
-				ThreadSupport.sleep(SimulationParameters.getSingleton().getDelay());
+				ThreadSupport.sleep(Client.getSingleton().getDelay());
 				serverProxy.executeCommand(this.name, newCommand);
 			} catch (RemoteException e) {
 				e.printStackTrace();

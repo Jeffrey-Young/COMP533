@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import global.SimulationParameters;
+import global.Server;
 import inputport.nio.manager.NIOManagerFactory;
 import util.interactiveMethodInvocation.IPCMechanism;
 
@@ -38,7 +38,7 @@ public class ServerReader implements Runnable {
 			// send out to the clients
 			//System.out.println("Server is now sending to clients");
 			for (SocketChannel client : clients) {
-				if (!SimulationParameters.getSingleton().isAtomicBroadcast() && client.equals(message.keySet().toArray()[0])) {
+				if (!Server.getSingleton().isAtomicBroadcast() && client.equals(message.keySet().toArray()[0])) {
 					continue;
 				}
 				NIOManagerFactory.getSingleton().write(client, message.get(message.keySet().toArray()[0]));
