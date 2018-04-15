@@ -15,6 +15,7 @@ import assignments.util.mainArgs.ServerArgsProcessor;
 import main.BeauAndersonFinalProject;
 import stringProcessors.HalloweenCommandProcessor;
 import util.annotations.Tags;
+import util.interactiveMethodInvocation.IPCMechanism;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
@@ -32,6 +33,8 @@ public class Server extends AnAbstractSimulationParametersBean {
 	private static Server simParams;
 	private static HalloweenCommandProcessor commandProcessor;
 	
+	private static RMIServer rmiServer;
+	
 	
 	public static void main(String[] args) {
 		args = ServerArgsProcessor.removeEmpty(args);
@@ -42,14 +45,13 @@ public class Server extends AnAbstractSimulationParametersBean {
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
 		
-		
 
 		// RMI
 		try {
-			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryHost(args));
-			RMIServer server = new RMIServer(rmiRegistry);
-			UnicastRemoteObject.exportObject(server, 0);
-			rmiRegistry.rebind(RMIServer.REGISTRY_NAME, server);
+			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
+			rmiServer = new RMIServer(rmiRegistry);
+			UnicastRemoteObject.exportObject(rmiServer, 0);
+			rmiRegistry.rebind(RMIServer.REGISTRY_NAME, rmiServer);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,8 +90,26 @@ public class Server extends AnAbstractSimulationParametersBean {
 	public synchronized void setAtomicBroadcast(Boolean newValue) {
 		ProposedStateSet.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 		if (this.broadcastMetaState) {
-			// TODO: Broadcast, need a way to surface this to whichever thing this singleton is attached to and pass message
+			try {
+				rmiServer.broadcastAtomic(newValue);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		atomicBroadcast = newValue;
+	}
+	
+	@Override
+	public synchronized void setIPCMechanism(IPCMechanism newValue) {
+		if (this.broadcastMetaState) {
+			try {
+				rmiServer.broadcastIPC(newValue);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		ipcMechanism = newValue;
 	}
 }

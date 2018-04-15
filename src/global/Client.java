@@ -18,6 +18,7 @@ import assignments.util.mainArgs.ClientArgsProcessor;
 import main.BeauAndersonFinalProject;
 import stringProcessors.HalloweenCommandProcessor;
 import util.annotations.Tags;
+import util.interactiveMethodInvocation.IPCMechanism;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
@@ -37,8 +38,8 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	private static HalloweenCommandProcessor commandProcessor;
 	
 	
-	private RMIClient rmiClient;
-	private RMIServerInterface serverProxy;
+	private static RMIClient rmiClient;
+	private static RMIServerInterface serverProxy;
 
 	public Client(String[] args) {
 		FactoryTraceUtility.setTracing();
@@ -50,28 +51,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 
 		args = ClientArgsProcessor.removeEmpty(args);
 		
-		// RMI
-		try {
-			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args));
-			serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.REGISTRY_NAME);
-			rmiClient = new RMIClient(serverProxy);
-			//export
-			UnicastRemoteObject.exportObject(rmiClient.getCommandProcessorProxy(), 0);
-			rmiRegistry.rebind(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
-			
-			serverProxy.join(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
-		//NIO
-		MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
-		SimulationParametersController aSimulationParametersController = 
-				new ASimulationParametersController();
-		NIOClient.launchClient(ClientArgsProcessor.getServerHost(args),
-				ClientArgsProcessor.getServerPort(args),
-				ClientArgsProcessor.getClientName(args), aSimulationParametersController);
 	}	
 	
 	public static Client getSingleton() {
@@ -109,8 +89,44 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		atomicBroadcast = newValue;
 	}
 	
+	@Override
+	public synchronized void setIPCMechanism(IPCMechanism newValue) {
+		if (this.broadcastMetaState) {
+			try {
+				serverProxy.broadcastIPC(newValue);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		ipcMechanism = newValue;
+	}
+	
 	
 	public static void main(String[] args) {
 		simParams = new Client(args);
+		
+		// RMI
+				try {
+					Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
+					serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.REGISTRY_NAME);
+					rmiClient = new RMIClient(serverProxy);
+					//export
+					UnicastRemoteObject.exportObject(rmiClient.getCommandProcessorProxy(), 0);
+					rmiRegistry.rebind(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
+					
+					serverProxy.join(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				//NIO
+				MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
+				SimulationParametersController aSimulationParametersController = 
+						new ASimulationParametersController();
+				NIOClient.launchClient(ClientArgsProcessor.getServerHost(args),
+						ClientArgsProcessor.getServerPort(args),
+						ClientArgsProcessor.getClientName(args), aSimulationParametersController);
 	}
 }
