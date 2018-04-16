@@ -7,15 +7,20 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import ValueSerializer.ArrayListSerializer;
 import ValueSerializer.ArraySerializer;
 import ValueSerializer.BooleanSerializer;
 import ValueSerializer.DoubleSerializer;
 import ValueSerializer.FloatSerializer;
+import ValueSerializer.HashMapSerializer;
+import ValueSerializer.HashSetSerializer;
+import ValueSerializer.HashTableSerializer;
 import ValueSerializer.IntegerSerializer;
 import ValueSerializer.LongSerializer;
 import ValueSerializer.ReferenceSerializer;
 import ValueSerializer.ShortSerializer;
 import ValueSerializer.StringSerializer;
+import ValueSerializer.VectorSerializer;
 import serialization.Serializer;
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
@@ -24,26 +29,26 @@ import util.annotations.Tags;
 public class TextualSerializer implements Serializer {
 
 	protected TextualSerializer() {
-		SerializerRegistry.registerValueSerializer(Integer.class, new IntegerSerializer());
-		SerializerRegistry.registerValueSerializer(Short.class, new ShortSerializer());
-		SerializerRegistry.registerValueSerializer(Long.class, new LongSerializer());
-		SerializerRegistry.registerValueSerializer(Boolean.class, new BooleanSerializer());
-		SerializerRegistry.registerValueSerializer(Double.class, new DoubleSerializer());
-		SerializerRegistry.registerValueSerializer(Float.class, new FloatSerializer());
-		SerializerRegistry.registerValueSerializer(String.class, new StringSerializer());
-		SerializerRegistry.registerValueSerializer(HashSet.class, new HashSetSerializer());
-		SerializerRegistry.registerValueSerializer(ArrayList.class, new ArrayListSerializer());
-		SerializerRegistry.registerValueSerializer(Vector.class, new VectorSerializer());
-		SerializerRegistry.registerValueSerializer(HashMap.class, new HashMapSerializer());
-		SerializerRegistry.registerValueSerializer(Hashtable.class, new HashTableSerializer());
+		SerializerRegistry.registerValueSerializer(Integer.class, new IntegerSerializer()); // I
+		SerializerRegistry.registerValueSerializer(Short.class, new ShortSerializer()); // S
+		SerializerRegistry.registerValueSerializer(Long.class, new LongSerializer()); // L
+		SerializerRegistry.registerValueSerializer(Boolean.class, new BooleanSerializer()); // B
+		SerializerRegistry.registerValueSerializer(Double.class, new DoubleSerializer()); // D
+		SerializerRegistry.registerValueSerializer(Float.class, new FloatSerializer()); // F
+		SerializerRegistry.registerValueSerializer(String.class, new StringSerializer()); // S
+		SerializerRegistry.registerValueSerializer(HashSet.class, new HashSetSerializer()); // H
+		SerializerRegistry.registerValueSerializer(ArrayList.class, new ArrayListSerializer()); // Y
+		SerializerRegistry.registerValueSerializer(Vector.class, new VectorSerializer()); // V
+		SerializerRegistry.registerValueSerializer(HashMap.class, new HashMapSerializer()); // M
+		SerializerRegistry.registerValueSerializer(Hashtable.class, new HashTableSerializer()); // T
 		
-		SerializerRegistry.registerArraySerializer(new ArraySerializer());
-		SerializerRegistry.registerBeanSerializer(new BeanSerializer());
-		SerializerRegistry.registerListPatternSerializer(new ListPatternSerializer());
-		SerializerRegistry.registerEnumSerializer(new EnumSerializer());
-		SerializerRegistry.registerNullSerializer(new NullSerializer());
+		SerializerRegistry.registerArraySerializer(new ArraySerializer()); // A
+		SerializerRegistry.registerBeanSerializer(new BeanSerializer()); // E
+//		SerializerRegistry.registerListPatternSerializer(new ListPatternSerializer());
+//		SerializerRegistry.registerEnumSerializer(new EnumSerializer());
+//		SerializerRegistry.registerNullSerializer(new NullSerializer());
 		SerializerRegistry.registerDispatchingSerializer(new ADispatchingSerializer());
-		SerializerRegistry.registerReferenceSerializer(new ReferenceSerializer());
+		SerializerRegistry.registerReferenceSerializer(new ReferenceSerializer()); // R
 	}
 	
 	@Override
