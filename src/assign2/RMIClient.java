@@ -1,6 +1,7 @@
 package assign2;
 
 import java.beans.PropertyChangeEvent;
+import util.trace.port.consensus.*;
 import util.tags.DistributedTags;
 import java.beans.PropertyChangeListener;
 import java.nio.ByteBuffer;
@@ -23,6 +24,7 @@ import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
+import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
@@ -64,7 +66,9 @@ public class RMIClient implements PropertyChangeListener {
 			// send to server
 			try {
 				ThreadSupport.sleep(Client.getSingleton().getDelay());
+				ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
 				serverProxy.executeCommand(this.name, newCommand);
+				RemoteProposeRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}

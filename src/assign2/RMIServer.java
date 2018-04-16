@@ -19,6 +19,9 @@ import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
+import util.trace.port.consensus.ProposalAcceptRequestSent;
+import util.trace.port.consensus.RemoteProposeRequestReceived;
+import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
@@ -69,6 +72,7 @@ public class RMIServer implements  RMIServerInterface {
 
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 		System.out.println("Command: " + command + " by " + invokerName + " successfully sent to server");
 		for (String proxyName : clients.keySet()) {
 			if (!Server.getSingleton().isAtomicBroadcast() && invokerName.equals(proxyName)) {
@@ -79,6 +83,10 @@ public class RMIServer implements  RMIServerInterface {
 			try {
 				ThreadSupport.sleep(Server.getSingleton().getDelay());
 				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
+				boolean clientAccept = clientProxy.accept();
+				ProposalAcceptRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+				// TODO: RESTART HERE
+				//TODO check IPC MECH and send via GIPC or RMI depending on value
 				clientProxy.processRemoteCommand(command);
 			} catch (Exception e) {
 				e.printStackTrace();
