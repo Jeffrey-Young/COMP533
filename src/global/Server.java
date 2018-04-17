@@ -12,6 +12,7 @@ import assign2.RMIServer;
 import assign3.GIPCRegistryAndServer;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.AnAbstractSimulationParametersBean;
+import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerArgsProcessor;
 import main.BeauAndersonFinalProject;
 import stringProcessors.HalloweenCommandProcessor;
@@ -27,6 +28,7 @@ import util.trace.port.consensus.ProposedStateSet;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.gipc.GIPCRPCTraceUtility;
+import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 @Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
@@ -55,6 +57,7 @@ public class Server extends AnAbstractSimulationParametersBean {
 		// RMI
 		try {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
+			RMIRegistryLocated.newCase(Server.getSingleton(), ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getRegistryPort(args), rmiRegistry);
 			rmiServer = new RMIServer(rmiRegistry);
 			UnicastRemoteObject.exportObject(rmiServer, 0);
 			rmiRegistry.rebind(RMIServer.REGISTRY_NAME, rmiServer);

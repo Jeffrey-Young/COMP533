@@ -12,6 +12,7 @@ import java.util.Map;
 import assignments.util.inputParameters.SimulationParametersListener;
 import assignments.util.mainArgs.ServerArgsProcessor;
 import consensus.ProposalFeedbackKind;
+import global.Client;
 import global.Server;
 import inputport.nio.manager.NIOManagerFactory;
 import util.annotations.Tags;
@@ -28,6 +29,7 @@ import util.trace.port.consensus.ProposalLearnedNotificationSent;
 import util.trace.port.consensus.RemoteProposeRequestReceived;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMIObjectLookedUp;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 import java.nio.channels.SocketChannel;
@@ -83,6 +85,7 @@ public class RMIServer implements RMIServerInterface {
 				RemoteCommandProcessorInterface clientProxy = null;
 				try {
 					clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
+					RMIObjectLookedUp.newCase(this, clientProxy, clientProxy.toString(), rmiRegistry);
 				} catch (NotBoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

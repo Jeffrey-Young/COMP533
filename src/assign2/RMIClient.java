@@ -26,6 +26,7 @@ import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 public class RMIClient implements PropertyChangeListener {
@@ -66,9 +67,14 @@ public class RMIClient implements PropertyChangeListener {
 			// send to server
 			try {
 				ThreadSupport.sleep(Client.getSingleton().getDelay());
-				ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
+				if (Client.getSingleton().isAtomicBroadcast()) {
+					ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
+			
+				}
 				serverProxy.executeCommand(this.name, newCommand);
-				RemoteProposeRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
+				if (Client.getSingleton().isAtomicBroadcast()) {
+					RemoteProposeRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
+				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
@@ -92,7 +98,7 @@ public class RMIClient implements PropertyChangeListener {
 
 		
 		try {
-			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args));
+			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
 			RMIServerInterface serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.REGISTRY_NAME);
 			RMIClient client = new RMIClient(serverProxy);
 			//export

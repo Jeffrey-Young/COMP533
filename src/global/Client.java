@@ -31,6 +31,8 @@ import util.trace.port.consensus.RemoteProposeRequestSent;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.gipc.GIPCRPCTraceUtility;
+import util.trace.port.rpc.rmi.RMIObjectLookedUp;
+import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 @Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
@@ -125,7 +127,9 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		// RMI
 				try {
 					Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
+					RMIRegistryLocated.newCase(Client.getSingleton(), ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getRegistryPort(args), rmiRegistry);
 					serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.REGISTRY_NAME);
+					RMIObjectLookedUp.newCase(Client.getSingleton(), serverProxy, serverProxy.toString(), rmiRegistry);
 					rmiClient = new RMIClient(serverProxy);
 					//export
 					UnicastRemoteObject.exportObject(rmiClient.getCommandProcessorProxy(), 0);
