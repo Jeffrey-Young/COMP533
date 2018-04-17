@@ -9,6 +9,7 @@ import assign1.NIOServer;
 import assign1.Simulation;
 import assign1.Simulation1;
 import assign2.RMIServer;
+import assign3.GIPCRegistryAndServer;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.AnAbstractSimulationParametersBean;
 import assignments.util.mainArgs.ServerArgsProcessor;
@@ -25,6 +26,7 @@ import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.consensus.ProposedStateSet;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.gipc.GIPCRPCTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 @Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
@@ -34,6 +36,7 @@ public class Server extends AnAbstractSimulationParametersBean {
 	private static HalloweenCommandProcessor commandProcessor;
 	
 	private static RMIServer rmiServer;
+	private static GIPCRegistryAndServer gipcRegistryAndServer;
 	
 	
 	public static void main(String[] args) {
@@ -44,7 +47,10 @@ public class Server extends AnAbstractSimulationParametersBean {
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
+		GIPCRPCTraceUtility.setTracing();
 		
+		// GIPC
+		gipcRegistryAndServer = new GIPCRegistryAndServer(args);
 
 		// RMI
 		try {

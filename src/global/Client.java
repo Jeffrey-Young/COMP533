@@ -25,9 +25,12 @@ import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
+import util.trace.port.consensus.ProposalMade;
 import util.trace.port.consensus.ProposedStateSet;
+import util.trace.port.consensus.RemoteProposeRequestSent;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.gipc.GIPCRPCTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 @Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
@@ -48,6 +51,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
+		GIPCRPCTraceUtility.setTracing();
 
 		args = ClientArgsProcessor.removeEmpty(args);
 		
@@ -77,15 +81,16 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	@Override
 	public synchronized void setAtomicBroadcast(Boolean newValue) {
-		ProposedStateSet.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 		if (this.broadcastMetaState) {
-			// TODO: Broadcast, need a way to surface this to whichever thing this singleton is attached to and pass message
+			ProposalMade.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 			try {
 				serverProxy.broadcastAtomic(newValue);
+				RemoteProposeRequestSent.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 		}
+		ProposedStateSet.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 		atomicBroadcast = newValue;
 	}
 	
@@ -99,7 +104,18 @@ public class Client  extends AnAbstractSimulationParametersBean {
 				e.printStackTrace();
 			}
 		}
+		ProposedStateSet.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, newValue);
 		ipcMechanism = newValue;
+	}
+	
+	public synchronized void setAtomicBroadcastAfterConsensus(Boolean newValue) {
+		ProposedStateSet.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
+		atomicBroadcast = newValue == null ? atomicBroadcast : newValue;
+	}
+	
+	public synchronized void setIPCMechanismAfterConsensus(IPCMechanism newValue) {
+		ProposedStateSet.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, newValue);
+		ipcMechanism = newValue == null ? ipcMechanism : newValue;
 	}
 	
 	
