@@ -122,6 +122,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	
 	public static void main(String[] args) {
+		MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
 		simParams = new Client(args);
 		
 		// RMI
@@ -142,7 +143,6 @@ public class Client  extends AnAbstractSimulationParametersBean {
 				}
 				
 				//NIO
-				MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
 				SimulationParametersController aSimulationParametersController = 
 						new ASimulationParametersController();
 				NIOClient.launchClient(ClientArgsProcessor.getServerHost(args),

@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 
 import assign2.RemoteCommandProcessorInterface;
 import assignments.util.mainArgs.RegistryArgsProcessor;
+import assignments.util.mainArgs.ServerArgsProcessor;
 import examples.mvc.rmi.duplex.ADistributedInheritingRMICounter;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
@@ -15,7 +16,7 @@ public class GIPCRegistryAndServer implements GIPCServerInterface {
 	
 	
 	public GIPCRegistryAndServer(String[] args) {
-		gipcRegistry = GIPCLocateRegistry.createRegistry(RegistryArgsProcessor.getRegistryPort(args));
+		gipcRegistry = GIPCLocateRegistry.createRegistry(ServerArgsProcessor.getGIPCServerPort(args));
 		//counter = new ADistributedInheritingRMICounter();			
 		// gipcRegistry.rebind(COUNTER_NAME, counter);	
 		gipcRegistry.getInputPort().addConnectionListener(new ATracingConnectionListener(gipcRegistry.getInputPort()));

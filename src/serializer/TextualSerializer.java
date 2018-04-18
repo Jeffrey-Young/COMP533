@@ -43,7 +43,7 @@ public class TextualSerializer implements Serializer {
 		SerializerRegistry.registerValueSerializer(Hashtable.class, new HashTableSerializer()); // T
 		
 		SerializerRegistry.registerArraySerializer(new ArraySerializer()); // A
-		SerializerRegistry.registerBeanSerializer(new BeanSerializer()); // E
+//		SerializerRegistry.registerBeanSerializer(new BeanSerializer()); // E
 //		SerializerRegistry.registerListPatternSerializer(new ListPatternSerializer());
 //		SerializerRegistry.registerEnumSerializer(new EnumSerializer());
 //		SerializerRegistry.registerNullSerializer(new NullSerializer());

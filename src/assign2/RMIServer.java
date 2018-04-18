@@ -30,6 +30,7 @@ import util.trace.port.consensus.RemoteProposeRequestReceived;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMIObjectLookedUp;
+import util.trace.port.rpc.rmi.RMIObjectRegistered;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
 import java.nio.channels.SocketChannel;
@@ -73,6 +74,7 @@ public class RMIServer implements RMIServerInterface {
 	@Override
 	public void join(String name, RemoteCommandProcessorInterface callback) throws RemoteException {
 		System.out.println(name + " has connected!");
+		RMIObjectRegistered.newCase(this, name, callback, rmiRegistry);
 		clients.put(name, callback);
 	}
 

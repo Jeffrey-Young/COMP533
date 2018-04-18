@@ -41,8 +41,8 @@ public class RMIClient implements PropertyChangeListener {
 		this.serverProxy = serverProxy;
 		commandProcessorProxy = new RemoteCommandProcessor(this);
 		// Dynamic Invocation Params
-		Client.getSingleton().setAtomicBroadcast(false);
-		Client.getSingleton().localProcessingOnly(false);
+		// Client.getSingleton().setAtomicBroadcast(false);
+		// Client.getSingleton().localProcessingOnly(false);
 		name = Math.random() + "";
 	}
 
