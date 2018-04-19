@@ -26,6 +26,7 @@ import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMIObjectRegistered;
 import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
@@ -99,10 +100,11 @@ public class RMIClient implements PropertyChangeListener {
 		
 		try {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
-			RMIServerInterface serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.REGISTRY_NAME);
+			RMIServerInterface serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.RMI_SERVER_NAME);
 			RMIClient client = new RMIClient(serverProxy);
 			//export
 			UnicastRemoteObject.exportObject(client.getCommandProcessorProxy(), 0);
+			RMIObjectRegistered.newCase(RMIClient.class, client.getName(), client, rmiRegistry);
 			rmiRegistry.rebind(client.getName(), client.getCommandProcessorProxy());
 			
 			serverProxy.join(client.getName(), client.getCommandProcessorProxy());

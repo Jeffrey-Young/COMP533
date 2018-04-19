@@ -21,7 +21,7 @@ public class ClientReceiver implements SocketChannelReadListener{
 
 	@Override
 	public void socketChannelRead(SocketChannel aSocketChannel, ByteBuffer aMessage, int aLength) {
-		if (Client.getSingleton().getIPCMechanism().equals(IPCMechanism.NIO)) {
+		if (!Client.getSingleton().getIPCMechanism().equals(IPCMechanism.NIO)) {
 			return;
 		}
 		String command = new String(aMessage.array(), aMessage.position(),

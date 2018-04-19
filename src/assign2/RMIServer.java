@@ -39,7 +39,7 @@ import java.rmi.Remote;
 import util.tags.DistributedTags;
 
 public class RMIServer implements RMIServerInterface {
-	public static final String REGISTRY_NAME = "RMI_SERVER";
+	public static final String RMI_SERVER_NAME = "RMI_SERVER";
 
 	private Map<String, RemoteCommandProcessorInterface> clients;
 	private Registry rmiRegistry;
@@ -64,7 +64,8 @@ public class RMIServer implements RMIServerInterface {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryHost(args));
 			RMIServer server = new RMIServer(rmiRegistry);
 			UnicastRemoteObject.exportObject(server, 0);
-			rmiRegistry.rebind(REGISTRY_NAME, server);
+			RMIObjectRegistered.newCase(RMIServer.class, server.toString(), server, rmiRegistry);
+			rmiRegistry.rebind(RMI_SERVER_NAME, server);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,7 +75,6 @@ public class RMIServer implements RMIServerInterface {
 	@Override
 	public void join(String name, RemoteCommandProcessorInterface callback) throws RemoteException {
 		System.out.println(name + " has connected!");
-		RMIObjectRegistered.newCase(this, name, callback, rmiRegistry);
 		clients.put(name, callback);
 	}
 

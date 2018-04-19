@@ -9,12 +9,15 @@ import assign1.NIOServer;
 import assign1.Simulation;
 import assign1.Simulation1;
 import assign2.RMIServer;
-import assign3.GIPCRegistryAndServer;
+import assign3.GIPCServer;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.AnAbstractSimulationParametersBean;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import assignments.util.mainArgs.ServerArgsProcessor;
+import inputport.rpc.GIPCLocateRegistry;
+import inputport.rpc.GIPCRegistry;
 import main.BeauAndersonFinalProject;
+import port.ATracingConnectionListener;
 import stringProcessors.HalloweenCommandProcessor;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.IPCMechanism;
@@ -28,6 +31,7 @@ import util.trace.port.consensus.ProposedStateSet;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.gipc.GIPCRPCTraceUtility;
+import util.trace.port.rpc.rmi.RMIObjectRegistered;
 import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
@@ -37,8 +41,8 @@ public class Server extends AnAbstractSimulationParametersBean {
 	private static Server simParams;
 	private static HalloweenCommandProcessor commandProcessor;
 	
-	private static RMIServer rmiServer;
-	private static GIPCRegistryAndServer gipcRegistryAndServer;
+	public static RMIServer rmiServer;
+	private static GIPCServer gipcRegistryAndServer;
 	
 	
 	public static void main(String[] args) {
@@ -52,19 +56,23 @@ public class Server extends AnAbstractSimulationParametersBean {
 		GIPCRPCTraceUtility.setTracing();
 		
 		// GIPC
-		gipcRegistryAndServer = new GIPCRegistryAndServer(args);
+//		GIPCRegistry gipcRegistry = GIPCLocateRegistry.createRegistry(ServerArgsProcessor.getGIPCServerPort(args));
+//		GIPCServer gipcServer = new GIPCServer(gipcRegistry);
+//		gipcRegistry.rebind(GIPCServer.GIPC_SERVER_NAME, gipcServer);
+//		gipcRegistry.getInputPort().addConnectionListener(new ATracingConnectionListener(gipcRegistry.getInputPort()));
 
 		// RMI
-		try {
-			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
-			RMIRegistryLocated.newCase(Server.getSingleton(), ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getRegistryPort(args), rmiRegistry);
-			rmiServer = new RMIServer(rmiRegistry);
-			UnicastRemoteObject.exportObject(rmiServer, 0);
-			rmiRegistry.rebind(RMIServer.REGISTRY_NAME, rmiServer);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
+//			RMIRegistryLocated.newCase(Server.getSingleton(), ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getRegistryPort(args), rmiRegistry);
+//			rmiServer = new RMIServer(rmiRegistry);
+//			UnicastRemoteObject.exportObject(rmiServer, 0);
+//			rmiRegistry.rebind(RMIServer.RMI_SERVER_NAME, rmiServer);
+//			RMIObjectRegistered.newCase(RMIServer.class, rmiServer.toString(), rmiServer, rmiRegistry);
+//		} catch (RemoteException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		// NIO
 		NIOServer aServer = new NIOServer();

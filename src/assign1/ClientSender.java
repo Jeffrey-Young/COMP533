@@ -39,15 +39,16 @@ public class ClientSender implements PropertyChangeListener {
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
 		String newCommand = (String) anEvent.getNewValue();
+		System.out.println("HERE");
 		// System.out.println("Client has command:" + newCommand);
 		if (!Client.getSingleton().isLocalProcessingOnly()) {
 			if (!Client.getSingleton().isAtomicBroadcast()) {
-				client.commandProcessor.processCommand(newCommand);
+				Client.getSingleton().getCommandProcessor().processCommand(newCommand);
 			} 
 			ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((newCommand.getBytes()));
 			NIOManagerFactory.getSingleton().write(socketChannel, aMeaningByteBuffer);
 		} else {
-			client.commandProcessor.processCommand(newCommand);
+			Client.getSingleton().getCommandProcessor().processCommand(newCommand);
 		}
 	}
 
