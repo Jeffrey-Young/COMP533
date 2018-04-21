@@ -2,6 +2,7 @@ package assign1;
 
 import inputport.nio.manager.NIOManagerFactory;
 import util.interactiveMethodInvocation.IPCMechanism;
+import util.trace.bean.NotifiedPropertyChangeEvent;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,6 +39,7 @@ public class ClientSender implements PropertyChangeListener {
 		}
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
+		NotifiedPropertyChangeEvent.newCase(this, anEvent, new PropertyChangeListener[]{});
 		String newCommand = (String) anEvent.getNewValue();
 		System.out.println("HERE");
 		// System.out.println("Client has command:" + newCommand);

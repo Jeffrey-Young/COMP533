@@ -76,9 +76,7 @@ public class GIPCServer implements GIPCServerInterface {
 				ThreadSupport.sleep(Server.getSingleton().getDelay());
 				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) gipcRegistry
 						.lookup(RemoteCommandProcessorInterface.class, proxyName);
-				if (Server.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-				}
+				ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 				// TODO check IPC MECH and send via GIPC or RMI depending on
 				// value
 				clientProxy.processRemoteCommand(command);

@@ -80,8 +80,9 @@ public class RMIServer implements RMIServerInterface {
 
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 		if (Server.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-			RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 			boolean accept = true;
 			for (String proxyName : clients.keySet()) {
 				RemoteCommandProcessorInterface clientProxy = null;
@@ -116,11 +117,8 @@ public class RMIServer implements RMIServerInterface {
 				ThreadSupport.sleep(Server.getSingleton().getDelay());
 				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) rmiRegistry
 						.lookup(proxyName);
-				if (Server.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-				}
-				// TODO check IPC MECH and send via GIPC or RMI depending on
-				// value
+				ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+
 				clientProxy.processRemoteCommand(command);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -183,8 +181,7 @@ public class RMIServer implements RMIServerInterface {
 			for (String proxyName : clients.keySet()) {
 				RemoteCommandProcessorInterface clientProxy = null;
 				try {
-					clientProxy = (RemoteCommandProcessorInterface) rmiRegistry
-							.lookup(proxyName);
+					clientProxy = (RemoteCommandProcessorInterface) rmiRegistry.lookup(proxyName);
 				} catch (NotBoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

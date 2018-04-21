@@ -62,17 +62,17 @@ public class Server extends AnAbstractSimulationParametersBean {
 //		gipcRegistry.getInputPort().addConnectionListener(new ATracingConnectionListener(gipcRegistry.getInputPort()));
 
 		// RMI
-//		try {
-//			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
-//			RMIRegistryLocated.newCase(Server.getSingleton(), ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getRegistryPort(args), rmiRegistry);
-//			rmiServer = new RMIServer(rmiRegistry);
-//			UnicastRemoteObject.exportObject(rmiServer, 0);
-//			rmiRegistry.rebind(RMIServer.RMI_SERVER_NAME, rmiServer);
-//			RMIObjectRegistered.newCase(RMIServer.class, rmiServer.toString(), rmiServer, rmiRegistry);
-//		} catch (RemoteException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			Registry rmiRegistry = LocateRegistry.getRegistry(ServerArgsProcessor.getRegistryPort(args));
+			RMIRegistryLocated.newCase(Server.getSingleton(), ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getRegistryPort(args), rmiRegistry);
+			rmiServer = new RMIServer(rmiRegistry);
+			UnicastRemoteObject.exportObject(rmiServer, 0);
+			rmiRegistry.rebind(RMIServer.RMI_SERVER_NAME, rmiServer);
+			RMIObjectRegistered.newCase(RMIServer.class, rmiServer.toString(), rmiServer, rmiRegistry);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// NIO
 		NIOServer aServer = new NIOServer();

@@ -24,45 +24,46 @@ public class RemoteCommandProcessor extends AHalloweenCommandProcessor implement
 	 */
 	private static final long serialVersionUID = 1L;
 	private HalloweenCommandProcessor commandProcessor;
+
 	public RemoteCommandProcessor(RMIClient client) {
 		// super();
 		commandProcessor = Client.getCommandProcessor();
 		commandProcessor.addPropertyChangeListener(client);
 	}
-	
+
 	public HalloweenCommandProcessor getCommandProcessor() {
 		return commandProcessor;
 	}
-	
+
 	public void processRemoteCommand(String command) throws RemoteException {
-		if (Client.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-			ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-			ProposedStateSet.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-		}
+		ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+		ProposedStateSet.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 		commandProcessor.processCommand(command);
 	}
 
 	@Override
 	public void remoteSetAtomic(boolean newValue) throws RemoteException {
-		if (Client.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-			ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
-		}
+		ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 		Client.getSingleton().setAtomicBroadcastAfterConsensus(newValue);
 	}
 
 	@Override
 	public void remoteSetIPC(IPCMechanism newValue) throws RemoteException {
-		if (Client.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-			ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, newValue);
-		}
+		ProposalLearnedNotificationReceived.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, newValue);
 		Client.getSingleton().setIPCMechanismAfterConsensus(newValue);
-		
+
 	}
 
 	@Override
 	public boolean receiveProposal(String communicationState, Object value) throws RemoteException {
 		ProposalAcceptRequestReceived.newCase(this, communicationState, -1, value);
-		ProposalAcceptedNotificationSent.newCase(this, communicationState, -1, value, ProposalFeedbackKind.SUCCESS); // idk if that last param is correct
+		ProposalAcceptedNotificationSent.newCase(this, communicationState, -1, value, ProposalFeedbackKind.SUCCESS); // idk
+																														// if
+																														// that
+																														// last
+																														// param
+																														// is
+																														// correct
 		return !Client.getSingleton().isRejectMetaStateChange();
 	}
 }

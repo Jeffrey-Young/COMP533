@@ -1,5 +1,6 @@
 package global;
 
+import java.beans.PropertyChangeEvent;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -45,19 +46,17 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	
 	private static RMIClient rmiClient;
+	private static NIOClient nioClient;
 	private static RMIServerInterface serverProxy;
 
-	public Client(String[] args) {
+	public Client() {
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
-		GIPCRPCTraceUtility.setTracing();
-
-		args = ClientArgsProcessor.removeEmpty(args);
-		
+		GIPCRPCTraceUtility.setTracing();		
 		
 	}	
 	
@@ -111,6 +110,14 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		ipcMechanism = newValue;
 	}
 	
+	@Override
+	public void simulationCommand(String aCommand) {
+		ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, aCommand);
+		// TODO: this method gets called in headless mode, need to send this command to RMI, NIO, and GIPC clients
+		nioClient.getNIOSender().propertyChange(new PropertyChangeEvent(this, "InputString", null, aCommand));
+		rmiClient.propertyChange(new PropertyChangeEvent(this, "InputString", null, aCommand));
+	}
+	
 	public synchronized void setAtomicBroadcastAfterConsensus(Boolean newValue) {
 		ProposedStateSet.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, newValue);
 		atomicBroadcast = newValue == null ? atomicBroadcast : newValue;
@@ -123,25 +130,27 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	
 	public static void main(String[] args) {
-		MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
-		simParams = new Client(args);
+		args = ClientArgsProcessor.removeEmpty(args);
+		//MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
+		MiscAssignmentUtils.setHeadless(true);
+		simParams = new Client();
 		
 //		// RMI
-//				try {
-//					Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
-//					RMIRegistryLocated.newCase(Client.getSingleton(), ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getRegistryPort(args), rmiRegistry);
-//					serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.RMI_SERVER_NAME);
-//					RMIObjectLookedUp.newCase(Client.getSingleton(), serverProxy, serverProxy.toString(), rmiRegistry);
-//					rmiClient = new RMIClient(serverProxy);
-//					//export
-//					UnicastRemoteObject.exportObject(rmiClient.getCommandProcessorProxy(), 0);
-//					RMIObjectRegistered.newCase(RMIClient.class, rmiClient.getName(), rmiClient, rmiRegistry);
-//					rmiRegistry.rebind(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
-//					serverProxy.join(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
-//
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
+				try {
+					Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
+					RMIRegistryLocated.newCase(Client.getSingleton(), ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getRegistryPort(args), rmiRegistry);
+					serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.RMI_SERVER_NAME);
+					RMIObjectLookedUp.newCase(Client.getSingleton(), serverProxy, serverProxy.toString(), rmiRegistry);
+					rmiClient = new RMIClient(serverProxy);
+					//export
+					UnicastRemoteObject.exportObject(rmiClient.getCommandProcessorProxy(), 0);
+					RMIObjectRegistered.newCase(RMIClient.class, rmiClient.getName(), rmiClient, rmiRegistry);
+					rmiRegistry.rebind(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
+					serverProxy.join(rmiClient.getName(), rmiClient.getCommandProcessorProxy());
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 				//NIO
 				SimulationParametersController aSimulationParametersController = 
@@ -149,5 +158,9 @@ public class Client  extends AnAbstractSimulationParametersBean {
 				NIOClient.launchClient(ClientArgsProcessor.getServerHost(args),
 						ClientArgsProcessor.getServerPort(args),
 						ClientArgsProcessor.getClientName(args), aSimulationParametersController);
+	}
+
+	public static void setNIOClient(NIOClient aClient) {
+		nioClient = aClient;
 	}
 }

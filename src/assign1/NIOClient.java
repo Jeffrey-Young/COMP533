@@ -68,6 +68,10 @@ public class NIOClient implements SocketChannelConnectListener {
 		clientReceiver = new ClientReceiver(readQueue);
 		
 	}
+	
+	public ClientSender getNIOSender() {
+		return clientSender;
+	}
 	protected void setFactories() {		
 		ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
 		//ReadCommandFactorySelector.setFactory(new AReadCommandFactory());
@@ -167,6 +171,7 @@ public class NIOClient implements SocketChannelConnectListener {
 
 		NIOClient aClient = new NIOClient(
 				aClientName);
+		Client.setNIOClient(aClient);
 		/*
 		 * Register with this instance our listener object for processing the user
 		 * commands

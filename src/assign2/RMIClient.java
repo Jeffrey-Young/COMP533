@@ -21,6 +21,7 @@ import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.IPCMechanism;
 import util.misc.ThreadSupport;
 import util.trace.bean.BeanTraceUtility;
+import util.trace.bean.NotifiedPropertyChangeEvent;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
@@ -34,7 +35,7 @@ public class RMIClient implements PropertyChangeListener {
 
 	private RemoteCommandProcessorInterface commandProcessorProxy;
 	private String name;
-	
+
 	// not the actual server object but a proxy for it via the registry
 	private RMIServerInterface serverProxy;
 
@@ -54,6 +55,7 @@ public class RMIClient implements PropertyChangeListener {
 		}
 		if (!anEvent.getPropertyName().equals("InputString"))
 			return;
+		NotifiedPropertyChangeEvent.newCase(this, anEvent, new PropertyChangeListener[] {});
 		String newCommand = (String) anEvent.getNewValue();
 		System.out.println("Client has command:" + newCommand);
 		if (!Client.getSingleton().isLocalProcessingOnly()) {
@@ -70,12 +72,10 @@ public class RMIClient implements PropertyChangeListener {
 				ThreadSupport.sleep(Client.getSingleton().getDelay());
 				if (Client.getSingleton().isAtomicBroadcast()) {
 					ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
-			
+
 				}
+				RemoteProposeRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
 				serverProxy.executeCommand(this.name, newCommand);
-				if (Client.getSingleton().isAtomicBroadcast()) {
-					RemoteProposeRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, newCommand);
-				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
@@ -97,16 +97,15 @@ public class RMIClient implements PropertyChangeListener {
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
 
-		
 		try {
 			Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
 			RMIServerInterface serverProxy = (RMIServerInterface) rmiRegistry.lookup(RMIServer.RMI_SERVER_NAME);
 			RMIClient client = new RMIClient(serverProxy);
-			//export
+			// export
 			UnicastRemoteObject.exportObject(client.getCommandProcessorProxy(), 0);
 			RMIObjectRegistered.newCase(RMIClient.class, client.getName(), client, rmiRegistry);
 			rmiRegistry.rebind(client.getName(), client.getCommandProcessorProxy());
-			
+
 			serverProxy.join(client.getName(), client.getCommandProcessorProxy());
 
 		} catch (Exception e) {
@@ -117,25 +116,24 @@ public class RMIClient implements PropertyChangeListener {
 	public String getName() {
 		return name;
 	}
-	
+
 	public RemoteCommandProcessorInterface getCommandProcessorProxy() {
 		return commandProcessorProxy;
 	}
-	
 
-	//@Override
+	// @Override
 	public void experimentInput() {
 		// TODO Auto-generated method stub
 
 	}
 
-	//@Override
+	// @Override
 	public void quit(int aCode) {
 		System.exit(aCode);
 
 	}
 
-	//@Override
+	// @Override
 	public void simulationCommand(String aCommand) {
 		// TODO Auto-generated method stub
 
