@@ -35,7 +35,7 @@ import util.trace.port.rpc.rmi.RMIObjectRegistered;
 import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
-@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO, DistributedTags.GIPC})
 public class Server extends AnAbstractSimulationParametersBean {
 
 	private static Server simParams;
@@ -48,7 +48,7 @@ public class Server extends AnAbstractSimulationParametersBean {
 	public static void main(String[] args) {
 		args = ServerArgsProcessor.removeEmpty(args);
 		FactoryTraceUtility.setTracing();
-		NIOTraceUtility.setTracing();
+		// NIOTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
@@ -56,10 +56,10 @@ public class Server extends AnAbstractSimulationParametersBean {
 		GIPCRPCTraceUtility.setTracing();
 		
 		// GIPC
-//		GIPCRegistry gipcRegistry = GIPCLocateRegistry.createRegistry(ServerArgsProcessor.getGIPCServerPort(args));
-//		GIPCServer gipcServer = new GIPCServer(gipcRegistry);
-//		gipcRegistry.rebind(GIPCServer.GIPC_SERVER_NAME, gipcServer);
-//		gipcRegistry.getInputPort().addConnectionListener(new ATracingConnectionListener(gipcRegistry.getInputPort()));
+		GIPCRegistry gipcRegistry = GIPCLocateRegistry.createRegistry(ServerArgsProcessor.getGIPCServerPort(args));
+		GIPCServer gipcServer = new GIPCServer(gipcRegistry);
+		gipcRegistry.rebind(GIPCServer.GIPC_SERVER_NAME, gipcServer);
+		gipcRegistry.getInputPort().addConnectionListener(new ATracingConnectionListener(gipcRegistry.getInputPort()));
 
 		// RMI
 		try {

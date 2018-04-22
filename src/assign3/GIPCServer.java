@@ -36,6 +36,9 @@ public class GIPCServer implements GIPCServerInterface {
 		clients = new HashMap<String, RemoteCommandProcessorInterface>();
 	}
 
+	public GIPCRegistry getGIPCRegistry() {
+		return this.gipcRegistry;
+	}
 	@Override
 	public void join(String name, RemoteCommandProcessorInterface callback) throws RemoteException {
 		System.out.println(name + " has connected via GIPC!");

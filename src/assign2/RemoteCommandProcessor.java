@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 
 import assign1.Simulation;
 import assign1.Simulation1;
+import assign3.GIPCClient;
 import consensus.ProposalFeedbackKind;
 import global.Client;
 import main.BeauAndersonFinalProject;
@@ -26,6 +27,12 @@ public class RemoteCommandProcessor extends AHalloweenCommandProcessor implement
 	private HalloweenCommandProcessor commandProcessor;
 
 	public RemoteCommandProcessor(RMIClient client) {
+		// super();
+		commandProcessor = Client.getCommandProcessor();
+		commandProcessor.addPropertyChangeListener(client);
+	}
+	
+	public RemoteCommandProcessor(GIPCClient client) {
 		// super();
 		commandProcessor = Client.getCommandProcessor();
 		commandProcessor.addPropertyChangeListener(client);

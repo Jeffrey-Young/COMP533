@@ -12,10 +12,15 @@ import assign1.Simulation1;
 import assign2.RMIClient;
 import assign2.RMIServer;
 import assign2.RMIServerInterface;
+import assign3.GIPCClient;
+import assign3.GIPCServer;
+import assign3.GIPCServerInterface;
 import assignments.util.MiscAssignmentUtils;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.AnAbstractSimulationParametersBean;
 import assignments.util.mainArgs.ClientArgsProcessor;
+import inputport.rpc.GIPCLocateRegistry;
+import inputport.rpc.GIPCRegistry;
 import main.BeauAndersonFinalProject;
 import stringProcessors.HalloweenCommandProcessor;
 import util.annotations.Tags;
@@ -37,7 +42,7 @@ import util.trace.port.rpc.rmi.RMIObjectRegistered;
 import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 
-@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
+@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO, DistributedTags.GIPC})
 public class Client  extends AnAbstractSimulationParametersBean {
 	
 
@@ -130,12 +135,37 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	
 	public static void main(String[] args) {
+		FactoryTraceUtility.setTracing();
+		BeanTraceUtility.setTracing();
+		// NIOTraceUtility.setTracing();
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+		GIPCRPCTraceUtility.setTracing();
+		
 		args = ClientArgsProcessor.removeEmpty(args);
 		//MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
 		MiscAssignmentUtils.setHeadless(true);
 		simParams = new Client();
+
+		// GIPC
+
+		try {
+			String name = ClientArgsProcessor.getClientName(args);
+			GIPCRegistry gipcRegistry= GIPCLocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getGIPCPort(args), name);
+			GIPCServerInterface serverProxy = (GIPCServerInterface) gipcRegistry.lookup(GIPCServerInterface.class, GIPCServer.GIPC_SERVER_NAME);
+			GIPCClient client = new GIPCClient(serverProxy, name);
+			// export
+			gipcRegistry.rebind(client.getName(), client.getCommandProcessorProxy());
+
+			serverProxy.join(client.getName(), client.getCommandProcessorProxy());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-//		// RMI
+		
+		// RMI
 				try {
 					Registry rmiRegistry = LocateRegistry.getRegistry(ClientArgsProcessor.getRegistryPort(args));
 					RMIRegistryLocated.newCase(Client.getSingleton(), ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getRegistryPort(args), rmiRegistry);

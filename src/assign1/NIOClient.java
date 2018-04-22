@@ -160,7 +160,7 @@ public class NIOClient implements SocketChannelConnectListener {
 		 */
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
-		NIOTraceUtility.setTracing();
+		// NIOTraceUtility.setTracing();
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
