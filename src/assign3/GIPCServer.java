@@ -47,6 +47,7 @@ public class GIPCServer implements GIPCServerInterface {
 
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 		if (Server.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
 			RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 			boolean accept = true;

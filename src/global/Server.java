@@ -48,7 +48,7 @@ public class Server extends AnAbstractSimulationParametersBean {
 	public static void main(String[] args) {
 		args = ServerArgsProcessor.removeEmpty(args);
 		FactoryTraceUtility.setTracing();
-		// NIOTraceUtility.setTracing();
+		NIOTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();

@@ -52,6 +52,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	
 	private static RMIClient rmiClient;
 	private static NIOClient nioClient;
+	private static GIPCClient gipcClient;
 	private static RMIServerInterface serverProxy;
 
 	public Client() {
@@ -121,6 +122,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		// TODO: this method gets called in headless mode, need to send this command to RMI, NIO, and GIPC clients
 		nioClient.getNIOSender().propertyChange(new PropertyChangeEvent(this, "InputString", null, aCommand));
 		rmiClient.propertyChange(new PropertyChangeEvent(this, "InputString", null, aCommand));
+		gipcClient.propertyChange(new PropertyChangeEvent(this, "InputString", null, aCommand));
 	}
 	
 	public synchronized void setAtomicBroadcastAfterConsensus(Boolean newValue) {
@@ -137,15 +139,15 @@ public class Client  extends AnAbstractSimulationParametersBean {
 	public static void main(String[] args) {
 		FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
-		// NIOTraceUtility.setTracing();
+		NIOTraceUtility.setTracing();
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
 		GIPCRPCTraceUtility.setTracing();
 		
 		args = ClientArgsProcessor.removeEmpty(args);
-		//MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
-		MiscAssignmentUtils.setHeadless(true);
+		MiscAssignmentUtils.setHeadless(ClientArgsProcessor.getHeadless(args));
+		//MiscAssignmentUtils.setHeadless(true);
 		simParams = new Client();
 
 		// GIPC
@@ -154,11 +156,11 @@ public class Client  extends AnAbstractSimulationParametersBean {
 			String name = ClientArgsProcessor.getClientName(args);
 			GIPCRegistry gipcRegistry= GIPCLocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getGIPCPort(args), name);
 			GIPCServerInterface serverProxy = (GIPCServerInterface) gipcRegistry.lookup(GIPCServerInterface.class, GIPCServer.GIPC_SERVER_NAME);
-			GIPCClient client = new GIPCClient(serverProxy, name);
+			gipcClient = new GIPCClient(serverProxy, name);
 			// export
-			gipcRegistry.rebind(client.getName(), client.getCommandProcessorProxy());
+			gipcRegistry.rebind(gipcClient.getName(), gipcClient.getCommandProcessorProxy());
 
-			serverProxy.join(client.getName(), client.getCommandProcessorProxy());
+			serverProxy.join(gipcClient.getName(), gipcClient.getCommandProcessorProxy());
 
 		} catch (Exception e) {
 			e.printStackTrace();
