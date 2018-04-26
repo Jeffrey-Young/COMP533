@@ -22,6 +22,7 @@ import util.trace.port.consensus.ProposalAcceptedNotificationReceived;
 import util.trace.port.consensus.ProposalLearnedNotificationSent;
 import util.trace.port.consensus.RemoteProposeRequestReceived;
 import util.trace.port.consensus.communication.CommunicationStateNames;
+import util.trace.port.rpc.gipc.GIPCObjectLookedUp;
 import util.trace.port.rpc.rmi.RMIObjectLookedUp;
 
 public class GIPCServer implements GIPCServerInterface {
@@ -48,16 +49,13 @@ public class GIPCServer implements GIPCServerInterface {
 	@Override
 	public void executeCommand(String invokerName, String command) throws RemoteException {
 		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 		if (Server.getSingleton().getConsensusAlgorithm() == ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS) {
-			RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 			boolean accept = true;
 			for (String proxyName : clients.keySet()) {
-				RemoteCommandProcessorInterface clientProxy = null;
-				clientProxy = (RemoteCommandProcessorInterface) gipcRegistry
-						.lookup(RemoteCommandProcessorInterface.class, proxyName);
 
 				ProposalAcceptRequestSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-				boolean clientAccept = clientProxy.receiveProposal(CommunicationStateNames.COMMAND, command);
+				boolean clientAccept = clients.get(proxyName).receiveProposal(CommunicationStateNames.COMMAND, command);
 				ProposalAcceptedNotificationReceived.newCase(this, CommunicationStateNames.COMMAND, -1, command,
 						ProposalFeedbackKind.SUCCESS);
 				if (!clientAccept) {
@@ -78,12 +76,10 @@ public class GIPCServer implements GIPCServerInterface {
 			System.out.println("Attempting to invoke " + command + " on " + proxyName);
 			try {
 				ThreadSupport.sleep(Server.getSingleton().getDelay());
-				RemoteCommandProcessorInterface clientProxy = (RemoteCommandProcessorInterface) gipcRegistry
-						.lookup(RemoteCommandProcessorInterface.class, proxyName);
+
 				ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-				// TODO check IPC MECH and send via GIPC or RMI depending on
-				// value
-				clientProxy.processRemoteCommand(command);
+
+				clients.get(proxyName).processRemoteCommand(command);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

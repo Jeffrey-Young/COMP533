@@ -49,7 +49,7 @@ public class GIPCClient implements PropertyChangeListener {
 		// Dynamic Invocation Params
 		// Client.getSingleton().setAtomicBroadcast(false);
 		// Client.getSingleton().localProcessingOnly(false);
-		this.name = name; 
+		this.name = name;
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class GIPCClient implements PropertyChangeListener {
 			return;
 		NotifiedPropertyChangeEvent.newCase(this, anEvent, new PropertyChangeListener[] {});
 		String newCommand = (String) anEvent.getNewValue();
-		System.out.println("Client has command:" + newCommand);
+		System.out.println("GIPC Client has command:" + newCommand);
 		if (!Client.getSingleton().isLocalProcessingOnly()) {
 			if (!Client.getSingleton().isAtomicBroadcast()) {
 				try {

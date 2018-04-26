@@ -19,6 +19,7 @@ import assignments.util.MiscAssignmentUtils;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.inputParameters.AnAbstractSimulationParametersBean;
 import assignments.util.mainArgs.ClientArgsProcessor;
+import inputport.rpc.ACachingAbstractRPCProxyInvocationHandler;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
 import main.BeauAndersonFinalProject;
@@ -155,8 +156,9 @@ public class Client  extends AnAbstractSimulationParametersBean {
 		// GIPC
 
 		try {
-			String name = ClientArgsProcessor.getClientName(args);
-			GIPCRegistry gipcRegistry= GIPCLocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getGIPCPort(args), name);
+			String name = Math.random() + "";
+			ACachingAbstractRPCProxyInvocationHandler.setInvokeObjectMethodsRemotely(false);
+			GIPCRegistry gipcRegistry= GIPCLocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getGIPCPort(args), ClientArgsProcessor.getClientName(args));
 			GIPCServerInterface serverProxy = (GIPCServerInterface) gipcRegistry.lookup(GIPCServerInterface.class, GIPCServer.GIPC_SERVER_NAME);
 			gipcClient = new GIPCClient(serverProxy, name);
 			// export
