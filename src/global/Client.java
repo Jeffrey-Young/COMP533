@@ -30,6 +30,8 @@ import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
+import util.trace.port.PerformanceExperimentEnded;
+import util.trace.port.PerformanceExperimentStarted;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.consensus.ProposalMade;
 import util.trace.port.consensus.ProposedStateSet;
@@ -194,5 +196,15 @@ public class Client  extends AnAbstractSimulationParametersBean {
 
 	public static void setNIOClient(NIOClient aClient) {
 		nioClient = aClient;
+	}
+	
+	public void experimentInput() {
+		long start = System.currentTimeMillis();
+		PerformanceExperimentStarted.newCase(this, start, 1000);
+		for (int i = 0; i < 1000; i++) {
+			commandProcessor.setInputString("move 1 1");
+		}
+		long end = System.currentTimeMillis();
+		PerformanceExperimentEnded pfe = PerformanceExperimentEnded.newCase(this, start, end, end - start, 1000);
 	}
 }

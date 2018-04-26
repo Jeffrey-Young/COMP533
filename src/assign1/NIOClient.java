@@ -206,7 +206,6 @@ public class NIOClient implements SocketChannelConnectListener {
 		}
 		long end = System.currentTimeMillis();
 		PerformanceExperimentEnded pfe = PerformanceExperimentEnded.newCase(this, start, end, end - start, 1000);
-		System.out.println("experimentInput");			
 	}
 
 	// @Override

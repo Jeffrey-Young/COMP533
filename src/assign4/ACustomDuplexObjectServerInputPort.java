@@ -19,7 +19,8 @@ public class ACustomDuplexObjectServerInputPort extends ADuplexObjectServerInput
 	 */
 	@Override
 	protected ReceiveRegistrarAndNotifier<Object> createReceiveRegistrarAndNotifier() {
-		return new ACustomReceiveNotifier();
+//		return new ACustomReceiveNotifier();
+		return null;
 	}
 	
 	/**
