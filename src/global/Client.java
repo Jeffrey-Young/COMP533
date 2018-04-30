@@ -157,6 +157,7 @@ public class Client  extends AnAbstractSimulationParametersBean {
 
 		try {
 			String name = Math.random() + "";
+			System.out.println("GIPC NAME IS: " + name);
 			ACachingAbstractRPCProxyInvocationHandler.setInvokeObjectMethodsRemotely(false);
 			GIPCRegistry gipcRegistry= GIPCLocateRegistry.getRegistry(ClientArgsProcessor.getRegistryHost(args), ClientArgsProcessor.getGIPCPort(args), ClientArgsProcessor.getClientName(args));
 			GIPCServerInterface serverProxy = (GIPCServerInterface) gipcRegistry.lookup(GIPCServerInterface.class, GIPCServer.GIPC_SERVER_NAME);

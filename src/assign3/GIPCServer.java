@@ -41,7 +41,7 @@ public class GIPCServer implements GIPCServerInterface {
 		return this.gipcRegistry;
 	}
 	@Override
-	public void join(String name, RemoteCommandProcessorInterface callback) throws RemoteException {
+	public synchronized void join(String name, RemoteCommandProcessorInterface callback) throws RemoteException {
 		System.out.println(name + " has connected via GIPC!");
 		clients.put(name, callback);
 	}
